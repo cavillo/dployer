@@ -1,0 +1,3 @@
+ENVIRONMENT='local'
+SERVICE='d-ployer'
+PORT='8002'

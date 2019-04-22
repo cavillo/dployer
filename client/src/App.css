@@ -1,0 +1,11 @@
+.container-card {
+  width: 200px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+}
+
+.container-card:first-child {
+}
+.container-card:last-child {
+  margin-right: 0px;
+}

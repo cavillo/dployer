@@ -1,0 +1,11 @@
+.dockerignore
+.drone.yml
+# .env
+.gitignore
+Dockerfile
+gulpfile.js
+README.md
+.git
+.gitignore
+tslint.json
+node_modules
