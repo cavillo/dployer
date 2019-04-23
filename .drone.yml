@@ -14,51 +14,68 @@ pipeline:
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   lint-api:
     group: lint
-    image: docker
+    image: node
     commands:
-      - docker build -t cavillo/dployer-api:latest -t cavillo/dployer-api:${DRONE_BUILD_NUMBER} -f .docker/api/Dockerfile .
-      - docker run cavillo/dployer-api:${DRONE_BUILD_NUMBER} npm run lint
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    - cd api
+    - npm i --silent
+    - npm run lint
+    # image: docker
+    # commands:
+    #   - docker build -t cavillo/dployer-api:latest -t cavillo/dployer-api:${DRONE_BUILD_NUMBER} -f .docker/api/Dockerfile .
+    #   - docker run cavillo/dployer-api:${DRONE_BUILD_NUMBER} npm run lint
+    # volumes:
+    #   - /var/run/docker.sock:/var/run/docker.sock
 
   lint-client:
     group: lint
-    image: docker
+    group: lint
+    image: node
     commands:
-      - docker build -t cavillo/dployer-client:latest -t cavillo/dployer-client:${DRONE_BUILD_NUMBER} -f .docker/client/Dockerfile .
-      - docker run cavillo/dployer-client:${DRONE_BUILD_NUMBER} npm run lint
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    - cd client
+    - npm i --silent
+    - npm run lint
+    # image: docker
+    # commands:
+    #   - docker build -t cavillo/dployer-client:latest -t cavillo/dployer-client:${DRONE_BUILD_NUMBER} -f .docker/client/Dockerfile .
+    #   - docker run cavillo/dployer-client:${DRONE_BUILD_NUMBER} npm run lint
+    # volumes:
+    #   - /var/run/docker.sock:/var/run/docker.sock
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  ## LINT
+  ## DOCKER
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   publish-api:
     group: publish
-    image: docker
-    commands:
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin 
-      - docker build -t cavillo/dployer-api:latest -t cavillo/dployer-api:${DRONE_BUILD_NUMBER} -f .docker/api/Dockerfile .
-      - docekr push cavillo/dployer-api:latest
-      - docekr push cavillo/dployer-api:${DRONE_BUILD_NUMBER}
-    secrets: [ docker_password, docker_id ]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    image: plugins/docker
+    settings:
+      context: .
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: cavillo/dployer-api
+      dockerfile: .docker/api/Dockerfile
+      tags:
+      - latest
+      - '${DRONE_BUILD_NUMBER}'
     when:
       event: push
       branch: master
 
   publish-client:
     group: publish
-    image: docker
-    commands:
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin 
-      - docker build -t cavillo/dployer-client:latest -t cavillo/dployer-client:${DRONE_BUILD_NUMBER} -f .docker/client/Dockerfile .
-      - docekr push cavillo/dployer-client:latest
-      - docekr push cavillo/dployer-client:${DRONE_BUILD_NUMBER}
-    secrets: [ docker_password, docker_id ]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    image: plugins/docker
+    settings:
+      context: .
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: cavillo/dployer-client
+      dockerfile: .docker/client/Dockerfile
+      tags:
+      - latest
+      - '${DRONE_BUILD_NUMBER}'
     when:
       event: push
       branch: master
