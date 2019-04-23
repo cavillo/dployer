@@ -58,9 +58,9 @@ pipeline:
       tags:
       - latest
       - '${DRONE_BUILD_NUMBER}'
-    when:
-      event: push
-      branch: master
+    # when:
+    #   event: push
+    #   branch: master
 
   publish-client:
     group: publish
@@ -76,9 +76,9 @@ pipeline:
       tags:
       - latest
       - '${DRONE_BUILD_NUMBER}'
-    when:
-      event: push
-      branch: master
+    # when:
+    #   event: push
+    #   branch: master
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   # DEV SLACK
