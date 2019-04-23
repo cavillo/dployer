@@ -48,11 +48,11 @@ pipeline:
     group: publish
     image: plugins/docker
     settings:
-      context: .
+      # context: .
       username:
-        from_secret: docker_username
+        from_secret: DOCKER_USERNAME
       password:
-        from_secret: docker_password
+        from_secret: DOCKER_PASSWORD
       repo: cavillo/dployer-api
       dockerfile: .docker/api/Dockerfile
       tags:
@@ -66,11 +66,11 @@ pipeline:
     group: publish
     image: plugins/docker
     settings:
-      context: .
+      # context: .
       username:
-        from_secret: docker_username
+        from_secret: DOCKER_USERNAME
       password:
-        from_secret: docker_password
+        from_secret: DOCKER_PASSWORD
       repo: cavillo/dployer-client
       dockerfile: .docker/client/Dockerfile
       tags:
