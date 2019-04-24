@@ -31,17 +31,9 @@ pipeline:
     group: lint
     image: node:latest
     commands:
-    - echo docker_username
-    - echo DOCKER_USERNAME
-    - echo $docker_username
-    - echo $DOCKER_USERNAME
-    - echo ${docker_username}
-    - echo ${DOCKER_USERNAME}
-    - echo ${DOCKER_ID}
     - cd client
     - npm i --silent
     - npm run lint
-    secrets: [ DOCKER_USERNAME ]
     # image: docker
     # commands:
     #   - docker build -t cavillo/dployer-client:latest -t cavillo/dployer-client:${DRONE_BUILD_NUMBER} -f .docker/client/Dockerfile .
@@ -62,6 +54,10 @@ pipeline:
       tags:
         - ${DRONE_COMMIT_BRANCH}-latest
         - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
     # when:
     #   event: push
     #   branch: master
