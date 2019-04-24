@@ -2,14 +2,6 @@ kind: pipeline
 name: dployer-ci
 
 steps:
-  - name: slack-build-started
-    image: plugins/slack
-    settings:
-      webhook: https://hooks.slack.com/services/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
-      channel: dployer
-      template: >
-        *{{ build.author }}* started building `{{ lowercase build.branch }}` [{{ build.number}}] - {{ build.link }}
-
   - name: lint-api
     group: lint
     image: node:latest
@@ -72,4 +64,8 @@ steps:
       webhook: https://hooks.slack.com/services/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
       channel: dployer
       template: >
-        *{{ build.author }}* started building `{{ lowercase build.branch }}` [{{ build.number}}] - {{ build.link }}
+        {{#success build.status}}
+          build {{build.number}} [{{ lowercase build.branch }}] succeeded. Good job *{{ build.author }}*.
+        {{else}}
+          build {{build.number}} [{{ lowercase build.branch }}] failed. Please by *{{ build.author }}* fix me {{ build.link }}
+        {{/success}}
