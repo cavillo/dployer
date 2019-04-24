@@ -15,7 +15,7 @@ pipeline:
     - npm run lint
     when:
       event: [ pull_request ]
-      branch: [ master, dev ]
+      branch: master
 
   lint-client:
     group: lint
@@ -27,7 +27,7 @@ pipeline:
     - npm run lint
     when:
       event: [ pull_request ]
-      branch: [ master, dev ]
+      branch: master
 
   slack-build-finished:
     image: plugins/slack
