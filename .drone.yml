@@ -36,12 +36,28 @@ pipeline:
       target: dployer-api
       debug: true
       secrets: [ docker_username, docker_password ]
+      auto_tag: true
       tags:
       - latest
       - '${DRONE_BUILD_NUMBER}'
-    # when:
-    #   event: push
-    #   branch: master
+    when:
+      event: push
+      branch: master
+
+  dockerize-client:
+    image: plugins/docker
+    settings:
+      repo: cavillo/dployer-client
+      target: dployer-client
+      debug: true
+      secrets: [ docker_username, docker_password ]
+      auto_tag: true
+      tags:
+      - latest
+      - '${DRONE_BUILD_NUMBER}'
+    when:
+      event: push
+      branch: master
   
   slack-build-finished:
     image: plugins/slack
