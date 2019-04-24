@@ -36,7 +36,7 @@ pipeline:
     group: publish
     image: plugins/docker
     settings:
-      # context: .
+      context: .
       repo: cavillo/dployer-api
       dockerfile: .docker/api/Dockerfile
       tags:
@@ -46,6 +46,7 @@ pipeline:
         from_secret: DOCKER_USERNAME
       password:
         from_secret: DOCKER_PASSWORD
+      secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
     # when:
     #   event: push
     #   branch: master
@@ -54,7 +55,7 @@ pipeline:
     group: publish
     image: plugins/docker
     settings:
-      # context: .
+      context: .
       repo: cavillo/dployer-client
       dockerfile: .docker/client/Dockerfile
       tags:
@@ -64,6 +65,7 @@ pipeline:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
     # when:
     #   event: push
     #   branch: master
