@@ -5,6 +5,9 @@ pipeline:
     channel: builds
     template: >
       *{{ build.author }}* started building `{{ lowercase build.branch }}` [{{ build.number}}] - {{ build.link }}
+    when:
+      event: [ pull_request ]
+      branch: master
 
   lint-api:
     group: lint
@@ -35,5 +38,7 @@ pipeline:
     channel: builds
     when:
       status: [ success, failure ]
+      event: [ pull_request ]
+      branch: master
     template: >
       build `{{ lowercase build.branch }}` [{{ build.number}}] by *{{ build.author }}* finished [{{ uppercase build.status }}] - {{ build.link }}
