@@ -32,20 +32,29 @@ steps:
       event: [ pull_request ]
       branch: master
 
-  - name: dockerize-api
-    group: dockerize
+  # - name: dockerize-api
+  #   group: dockerize
+  #   image: plugins/docker
+  #   settings:
+  #     repo: cavillo/dployer-api
+  #     target: dployer-api
+  #     debug: true
+  #     secrets: [ docker_username, docker_password ]
+  #     auto_tag: true
+  #     # tags:
+  #     # - '${DRONE_BUILD_NUMBER}'
+  #   # when:
+  #   #   event: push
+  #     #   branch: master
+
+  - name: dockerize-api  
     image: plugins/docker
     settings:
       repo: cavillo/dployer-api
-      target: dployer-api
-      debug: true
-      secrets: [ docker_username, docker_password ]
-      auto_tag: true
-      # tags:
-      # - '${DRONE_BUILD_NUMBER}'
-    # when:
-    #   event: push
-      #   branch: master
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
 
   - name: dockerize-client
     group: dockerize
