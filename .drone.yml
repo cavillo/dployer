@@ -40,7 +40,7 @@ pipeline:
         from_secret: docker_username
       password:
         from_secret: docker_password      
-      dockerfile: .docker/api/Dockerfile
+      dockerfile: /.docker/api/Dockerfile
       tags:
       - latest
       - '${DRONE_BUILD_NUMBER}'
