@@ -1,7 +1,7 @@
 pipeline:
   slack-build-started:
     image: plugins/slack
-    webhook: https://hooks.slack.com/services/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
+    webhook: https://hooks.slack.com/services/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
     channel: builds
     template: >
       *{{ build.author }}* started building `{{ lowercase build.branch }}` [{{ build.number}}] - {{ build.link }}
@@ -14,7 +14,7 @@ pipeline:
     - npm i --silent
     - npm run lint
     when:
-      event: [ push, pull_request ]
+      event: [ pull_request ]
       branch: [ master, dev ]
 
   lint-client:
@@ -26,12 +26,12 @@ pipeline:
     - npm i --silent
     - npm run lint
     when:
-      event: [ push, pull_request ]
+      event: [ pull_request ]
       branch: [ master, dev ]
 
   slack-build-finished:
     image: plugins/slack
-    webhook: https://hooks.slack.com/services/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
+    webhook: https://hooks.slack.com/services/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
     channel: builds
     when:
       status: [ success, failure ]
