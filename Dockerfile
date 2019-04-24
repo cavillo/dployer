@@ -14,5 +14,5 @@ WORKDIR '/dployer/client'
 COPY client/package*.json ./
 RUN npm install --silent
 COPY client ./
-CMD ["npm", "start"]
+CMD ["npm", "start-prod"]
 
