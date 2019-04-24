@@ -23,12 +23,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-prod": "npm run build-conf && react-scripts start",
+    "start-prod": "npm run clean-conf && npm run build-conf && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "clean-conf": "rm -f ./src/conf/index.ts",
-    "build-conf": "npm run clean-conf && echo \"export default { apiUrl: '${DPLOYER_API_URL}' !== '' ? '${DPLOYER_API_URL}' : 'http://localhost:8002/api' };\" >> ./src/conf/index.ts",
+    "build-conf": "echo \"// @ts-ignore\" >> ./src/conf/index.ts && echo \"export default { apiUrl: '${DPLOYER_API_URL}' !== '' ? '${DPLOYER_API_URL}' : 'http://localhost:8002/api' };\" >> ./src/conf/index.ts",
     "lint": "node_modules/.bin/tslint --project ./tsconfig.json"
   },
   "eslintConfig": {
