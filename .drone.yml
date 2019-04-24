@@ -61,7 +61,7 @@ steps:
     #   event: push
     #   branch: master
 
-  - name: slack-build-started
+  - name: slack-build-finished
     image: plugins/slack
     webhook: https://hooks.slack.com/services/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
     channel: builds
