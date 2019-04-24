@@ -1,36 +1,18 @@
-version: '3'
+version: '2'
 services:
-  # nginx:
-  #   restart: always
-  #   build:
-  #     dockerfile: Dockerfile.dev
-  #     context: ./nginx
-  #   ports:
-  #     - '3050:80'
-  #   ports:
-  #     - '3050:80'
   redis:
     image: 'redis:latest'
     ports:
       - '6379:6379'
   api:
-    build:
-      dockerfile: ./.docker/api/Dockerfile
-      context: .
-    volumes:
-      - /dployer/api/node_modules
-      - ./api:/dployer/api
-      - /var/run/docker.sock:/var/run/docker.sock
+    image: 'cavillo/deployer-api:latest'
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
       - '8002:8002'
   client:
-    build:
-      dockerfile: ./.docker/client/prod/Dockerfile
-      # dockerfile: ./.docker/client/Dockerfile
-      context: .
+    image: 'cavillo/deployer-client:latest'
     environment:
       - DPLOYER_API_URL=http://localhost:8002
     ports:
