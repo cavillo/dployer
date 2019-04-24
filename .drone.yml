@@ -33,10 +33,7 @@ pipeline:
     commands:
     - echo $docker_username
     - echo $DOCKER_USERNAME
-    - echo ${{docker_username}}
     - echo ${docker_username}
-    - echo ${DOCKER_USERNAME}
-    - echo ${{DOCKER_USERNAME}}
     - echo ${DOCKER_USERNAME}
     - echo ${DOCKER_ID}
     - cd client
