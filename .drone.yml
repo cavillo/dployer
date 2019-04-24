@@ -31,6 +31,8 @@ pipeline:
     group: lint
     image: node:latest
     commands:
+    - echo docker_username
+    - echo DOCKER_USERNAME
     - echo $docker_username
     - echo $DOCKER_USERNAME
     - echo ${docker_username}
@@ -39,6 +41,7 @@ pipeline:
     - cd client
     - npm i --silent
     - npm run lint
+    secrets: [ DOCKER_USERNAME ]
     # image: docker
     # commands:
     #   - docker build -t cavillo/dployer-client:latest -t cavillo/dployer-client:${DRONE_BUILD_NUMBER} -f .docker/client/Dockerfile .
