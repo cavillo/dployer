@@ -31,8 +31,14 @@ pipeline:
     group: lint
     image: node:latest
     commands:
+    - echo $docker_username
+    - echo $DOCKER_USERNAME
+    - echo ${{docker_username}}
+    - echo ${docker_username}
     - echo ${DOCKER_USERNAME}
-    - echo ${DOCKER_id}
+    - echo ${{DOCKER_USERNAME}}
+    - echo ${DOCKER_USERNAME}
+    - echo ${DOCKER_ID}
     - cd client
     - npm i --silent
     - npm run lint
@@ -56,11 +62,6 @@ pipeline:
       tags:
         - ${DRONE_COMMIT_BRANCH}-latest
         - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
-      secrets:
-        - source: DOCKER_USERNAME
-          target: docker_username
-        - source: DOCKER_PASSWORD
-          target: docker_password
     # when:
     #   event: push
     #   branch: master
@@ -75,11 +76,10 @@ pipeline:
       tags:
         - ${DRONE_COMMIT_BRANCH}-latest
         - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
-      secrets:
-        - source: DOCKER_USERNAME
-          target: docker_username
-        - source: DOCKER_PASSWORD
-          target: docker_password
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
     # when:
     #   event: push
     #   branch: master
