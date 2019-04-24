@@ -1,5 +1,7 @@
-pipeline:
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+kind: pipeline
+name: dployer-ci
+
+steps:  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   ## DEV SLACK
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   slack-build-started:
@@ -46,7 +48,11 @@ pipeline:
         from_secret: DOCKER_USERNAME
       password:
         from_secret: DOCKER_PASSWORD
-      secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
+      secrets:
+        - source: DOCKER_USERNAME
+          target: docker_username
+        - source: DOCKER_PASSWORD
+          target: docker_password
     # when:
     #   event: push
     #   branch: master
@@ -65,7 +71,11 @@ pipeline:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      secrets: [ DOCKER_USERNAME, DOCKER_PASSWORD ]
+      secrets:
+        - source: DOCKER_USERNAME
+          target: docker_username
+        - source: DOCKER_PASSWORD
+          target: docker_password
     # when:
     #   event: push
     #   branch: master
