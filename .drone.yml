@@ -29,6 +29,23 @@ pipeline:
       event: [ pull_request ]
       branch: master
 
+  dockerize-api:
+    image: plugins/docker
+    settings:
+      repo: cavillo/deployer-api
+      auto_tag: true
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password      
+      dockerfile: .docker/api/Dockerfile
+      tags:
+      - latest
+      - '${DRONE_BUILD_NUMBER}'
+    # when:
+    #   event: push
+    #   branch: master
+  
   slack-build-finished:
     image: plugins/slack
     webhook: https://hooks.slack.com/services/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
