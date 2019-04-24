@@ -1,12 +1,16 @@
-pipeline:
-  slack-build-started:
-    image: plugins/slack
-    webhook: https://hooks.slack.com/services/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
-    channel: builds
-    template: >
-      *{{ build.author }}* started building `{{ lowercase build.branch }}` [{{ build.number}}] - {{ build.link }}
+kind: pipeline
+name: dployer-ci
 
-  lint-api:
+steps:
+  - name: slack-build-start
+    image: plugins/slack
+    settings:
+      webhook: https://hooks.slack.com/services/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
+      channel: dployer
+      template: >
+          {{uppercase build.event}} to [{{ lowercase build.branch }}] by *{{ build.author }}* -> {{ build.link }}
+
+  - name: lint-api
     group: lint
     image: node:latest
     commands:
@@ -14,11 +18,10 @@ pipeline:
     - npm i --silent
     - npm run lint
     when:
-      event: [ push, pull_request ]
-      branch: [ master, dev ]
+      event: [ pull_request ]
+      branch: master
 
-  lint-client:
-    group: lint
+  - name: lint-client
     group: lint
     image: node:latest
     commands:
@@ -26,14 +29,54 @@ pipeline:
     - npm i --silent
     - npm run lint
     when:
-      event: [ push, pull_request ]
-      branch: [ master, dev ]
+      event: [ pull_request ]
+      branch: master
 
-  slack-build-finished:
-    image: plugins/slack
-    webhook: https://hooks.slack.com/services/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
-    channel: builds
+  - name: dockerize-api
+    image: plugins/docker
+    settings:
+      repo: cavillo/dployer-api
+      target: dployer-api
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      auto_tag: true
+      tags:
+        - latest
+        - '${DRONE_BUILD_NUMBER}'
     when:
-      status: [ success, failure ]
-    template: >
-      build `{{ lowercase build.branch }}` [{{ build.number}}] by *{{ build.author }}* finished [{{ uppercase build.status }}] - {{ build.link }}
+      event: push
+      branch: master
+
+  - name: dockerize-client
+    image: plugins/docker
+    settings:
+      repo: cavillo/dployer-client
+      target: dployer-client
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      auto_tag: true
+      tags:
+        - latest
+        - '${DRONE_BUILD_NUMBER}'
+    when:
+      event: push
+      branch: master
+
+  - name: slack-build-finished
+    image: plugins/slack
+    settings:
+      webhook: https://hooks.slack.com/services/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
+      channel: dployer
+      template: >
+        {{#success build.status}}
+          {{uppercase build.event}} {{build.number}} [{{ lowercase build.branch }}] succeeded. Good job *{{ build.author }}*.
+        {{else}}
+          {{uppercase build.event}} {{build.number}} [{{ lowercase build.branch }}] failed. Please by *{{ build.author }}* fix me -> {{ build.link }}
+        {{/success}}
+    when:
+      event: [ push, pull_request ]
+      branch: master

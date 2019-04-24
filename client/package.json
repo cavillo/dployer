@@ -27,7 +27,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build-config": "echo \"export default { apiUrl: '${DPLOYER_API_URL}' };\" >> ./src/conf/index.ts",
+    "build-config": "echo \"export default { apiUrl: '${DPLOYER_API_URL}' !== '' ? '${DPLOYER_API_URL}' : 'http://localhost:8002/api' };\" >> ./src/conf/index.ts",
     "lint": "node_modules/.bin/tslint --project ./tsconfig.json"
   },
   "eslintConfig": {
