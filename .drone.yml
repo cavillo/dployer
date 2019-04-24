@@ -1,93 +1,83 @@
-kind: pipeline
-name: dployer-ci
-
-steps:  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+pipeline:
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   ## DEV SLACK
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-- name: slack-build-started
-  image: plugins/slack
-  webhook: https://hooks.slack.com/services/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
-  channel: builds
-  template: >
-    *{{ build.author }}* started building `{{ lowercase build.branch }}` [{{ build.number}}] - {{ build.link }}
+  slack-build-started:
+    image: plugins/slack
+    webhook: https://hooks.slack.com/services/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
+    channel: builds
+    template: >
+      *{{ build.author }}* started building `{{ lowercase build.branch }}` [{{ build.number}}] - {{ build.link }}
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   ## LINT
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  # lint-api:
-  #   group: lint
-  #   image: node:latest
-  #   commands:
-  #   - cd api
-  #   - npm i --silent
-  #   - npm run lint
+  lint-api:
+    group: lint
+    image: node:latest
+    commands:
+    - cd api
+    - npm i --silent
+    - npm run lint
 
-  # lint-client:
-  #   group: lint
-  #   group: lint
-  #   image: node:latest
-  #   commands:
-  #   - cd client
-  #   - npm i --silent
-  #   - npm run lint
+  lint-client:
+    group: lint
+    group: lint
+    image: node:latest
+    commands:
+    - cd client
+    - npm i --silent
+    - npm run lint
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   ## DOCKER
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-- name: publish-api
-  group: publish
-  image: plugins/docker
-  settings:
-    context: .
-    repo: cavillo/dployer-api
-    dockerfile: .docker/api/Dockerfile
-    tags:
-      - ${DRONE_COMMIT_BRANCH}-latest
-      - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
-    username:
-      from_secret: DOCKER_USERNAME
-    password:
-      from_secret: DOCKER_PASSWORD
-    secrets:
-      - source: DOCKER_USERNAME
-        target: docker_username
-      - source: DOCKER_PASSWORD
-        target: docker_password
-  # when:
-  #   event: push
-  #   branch: master
+  # publish-api:
+  #   group: publish
+  #   image: plugins/docker
+  #   settings:
+  #     context: .
+  #     repo: cavillo/dployer-api
+  #     dockerfile: .docker/api/Dockerfile
+  #     tags:
+  #       - ${DRONE_COMMIT_BRANCH}-latest
+  #       - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
+  #     secrets:
+  #       - source: DOCKER_USERNAME
+  #         target: username
+  #       - source: DOCKER_PASSWORD
+  #         target: password
+    # when:
+    #   event: push
+    #   branch: master
 
-- name: publish-client
-  group: publish
-  image: plugins/docker
-  settings:
-    context: .
-    repo: cavillo/dployer-client
-    dockerfile: .docker/client/Dockerfile
-    tags:
-      - ${DRONE_COMMIT_BRANCH}-latest
-      - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    secrets:
-      - source: DOCKER_USERNAME
-        target: docker_username
-      - source: DOCKER_PASSWORD
-        target: docker_password
-  # when:
-  #   event: push
-  #   branch: master
+  # publish-client:
+  #   group: publish
+  #   image: plugins/docker
+  #   settings:
+  #     context: .
+  #     repo: cavillo/dployer-client
+  #     dockerfile: .docker/client/Dockerfile
+  #     tags:
+  #       - ${DRONE_COMMIT_BRANCH}-latest
+  #       - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
+  #     secrets:
+  #       - source: DOCKER_USERNAME
+  #         target: username
+  #       - source: DOCKER_PASSWORD
+  #         target: password
+    # when:
+    #   event: push
+    #   branch: master
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   # DEV SLACK
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-- name: slack-build-finished
-  image: plugins/slack
-  webhook: https://hooks.slack.com/services/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
-  channel: builds
-  when:
-    status: [ success, failure ]
-  template: >
-    build `{{ lowercase build.branch }}` [{{ build.number}}] by *{{ build.author }}* finished [{{ uppercase build.status }}] - {{ build.link }}
+  slack-build-finished:
+    image: plugins/slack
+    webhook: https://hooks.slack.com/services/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
+    channel: builds
+    when:
+      status: [ success, failure ]
+    template: >
+      build `{{ lowercase build.branch }}` [{{ build.number}}] by *{{ build.author }}* finished [{{ uppercase build.status }}] - {{ build.link }}
