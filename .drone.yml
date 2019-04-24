@@ -8,7 +8,7 @@ steps:
       webhook: https://hooks.slack.com/services/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
       channel: dployer
       template: >
-          {{uppercase build.event}} to [{{ lowercase build.branch }}] by *{{ build.author }}* -> {{ build.link }}
+          {{build.event}} to `{{ lowercase build.branch }}` by *{{ build.author }}* -> {{ build.link }}
 
   - name: lint-api
     group: lint
