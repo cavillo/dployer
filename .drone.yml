@@ -34,32 +34,32 @@ steps:
   - name: dockerize-api
     group: dockerize
     image: plugins/docker
-      settings:
-        repo: cavillo/dployer-api
-        target: dployer-api
-        debug: true
-        secrets: [ docker_username, docker_password ]
-        auto_tag: true
-        # tags:
-        # - '${DRONE_BUILD_NUMBER}'
-      # when:
-      #   event: push
+    settings:
+      repo: cavillo/dployer-api
+      target: dployer-api
+      debug: true
+      secrets: [ docker_username, docker_password ]
+      auto_tag: true
+      # tags:
+      # - '${DRONE_BUILD_NUMBER}'
+    # when:
+    #   event: push
       #   branch: master
 
   - name: dockerize-client
     group: dockerize
     image: plugins/docker
-      settings:
-        repo: cavillo/dployer-client
-        target: dployer-client
-        debug: true
-        secrets: [ docker_username, docker_password ]
-        auto_tag: true
-        # tags:
-        # - '${DRONE_BUILD_NUMBER}'
-      # when:
-      #   event: push
-      #   branch: master
+    settings:
+      repo: cavillo/dployer-client
+      target: dployer-client
+      debug: true
+      secrets: [ docker_username, docker_password ]
+      auto_tag: true
+      # tags:
+      # - '${DRONE_BUILD_NUMBER}'
+    # when:
+    #   event: push
+    #   branch: master
 
   - name: slack-build-started
     image: plugins/slack
