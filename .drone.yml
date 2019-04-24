@@ -1,7 +1,4 @@
 pipeline:
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  ## DEV SLACK
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   slack-build-started:
     image: plugins/slack
     webhook: https://hooks.slack.com/services/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
@@ -9,9 +6,6 @@ pipeline:
     template: >
       *{{ build.author }}* started building `{{ lowercase build.branch }}` [{{ build.number}}] - {{ build.link }}
 
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  ## LINT
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   lint-api:
     group: lint
     image: node:latest
@@ -19,6 +13,9 @@ pipeline:
     - cd api
     - npm i --silent
     - npm run lint
+    when:
+      event: push
+      branch: [ master, dev ]
 
   lint-client:
     group: lint
@@ -28,51 +25,10 @@ pipeline:
     - cd client
     - npm i --silent
     - npm run lint
+    when:
+      event: push
+      branch: [ master, dev ]
 
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  ## DOCKER
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  # publish-api:
-  #   group: publish
-  #   image: plugins/docker
-  #   settings:
-  #     context: .
-  #     repo: cavillo/dployer-api
-  #     dockerfile: .docker/api/Dockerfile
-  #     tags:
-  #       - ${DRONE_COMMIT_BRANCH}-latest
-  #       - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
-  #     secrets:
-  #       - source: DOCKER_USERNAME
-  #         target: username
-  #       - source: DOCKER_PASSWORD
-  #         target: password
-    # when:
-    #   event: push
-    #   branch: master
-
-  # publish-client:
-  #   group: publish
-  #   image: plugins/docker
-  #   settings:
-  #     context: .
-  #     repo: cavillo/dployer-client
-  #     dockerfile: .docker/client/Dockerfile
-  #     tags:
-  #       - ${DRONE_COMMIT_BRANCH}-latest
-  #       - ${DRONE_COMMIT_BRANCH}-v${DRONE_BUILD_NUMBER}
-  #     secrets:
-  #       - source: DOCKER_USERNAME
-  #         target: username
-  #       - source: DOCKER_PASSWORD
-  #         target: password
-    # when:
-    #   event: push
-    #   branch: master
-
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-  # DEV SLACK
-  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   slack-build-finished:
     image: plugins/slack
     webhook: https://hooks.slack.com/services/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
