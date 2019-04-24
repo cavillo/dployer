@@ -40,9 +40,9 @@ pipeline:
       tags:
       - latest
       - '${DRONE_BUILD_NUMBER}'
-    when:
-      event: push
-      branch: master
+    # when:
+    #   event: push
+    #   branch: master
 
   dockerize-client:
     image: plugins/docker
@@ -55,9 +55,9 @@ pipeline:
       tags:
       - latest
       - '${DRONE_BUILD_NUMBER}'
-    when:
-      event: push
-      branch: master
+    # when:
+    #   event: push
+    #   branch: master
   
   slack-build-finished:
     image: plugins/slack
