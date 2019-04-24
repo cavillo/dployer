@@ -30,7 +30,7 @@ pipeline:
       branch: master
 
   dockerize-api:
-    image: plugins/docker
+    image: plugins/docker:17.12
     settings:
       repo: cavillo/dployer-api
       target: dployer-api
@@ -44,7 +44,7 @@ pipeline:
     #   branch: master
 
   dockerize-client:
-    image: plugins/docker
+    image: plugins/docker:17.12
     settings:
       repo: cavillo/dployer-client
       target: dployer-client
