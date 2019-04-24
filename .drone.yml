@@ -32,10 +32,10 @@ pipeline:
   dockerize-api:
     image: plugins/docker
     settings:
-      repo: cavillo/deployer-api
+      repo: cavillo/dployer-api
+      target: dployer-api
       debug: true
       secrets: [ docker_username, docker_password ]
-      dockerfile: '.docker/api/Dockerfile'
       tags:
       - latest
       - '${DRONE_BUILD_NUMBER}'
