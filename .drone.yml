@@ -37,9 +37,8 @@ pipeline:
       debug: true
       secrets: [ docker_username, docker_password ]
       auto_tag: true
-      tags:
-      - latest
-      - '${DRONE_BUILD_NUMBER}'
+      # tags:
+      # - '${DRONE_BUILD_NUMBER}'
     # when:
     #   event: push
     #   branch: master
@@ -52,9 +51,8 @@ pipeline:
       debug: true
       secrets: [ docker_username, docker_password ]
       auto_tag: true
-      tags:
-      - latest
-      - '${DRONE_BUILD_NUMBER}'
+      # tags:
+      # - '${DRONE_BUILD_NUMBER}'
     # when:
     #   event: push
     #   branch: master
