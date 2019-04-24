@@ -73,7 +73,7 @@ steps:
       channel: dployer
       template: >
         {{#success build.status}}
-          {{uppercase build.event}} {{{{uppercase build.event}}.number}} [{{ lowercase build.branch }}] succeeded. Good job *{{ build.author }}*.
+          {{uppercase build.event}} {{build.number}} [{{ lowercase build.branch }}] succeeded. Good job *{{ build.author }}*.
         {{else}}
           {{uppercase build.event}} {{build.number}} [{{ lowercase build.branch }}] failed. Please by *{{ build.author }}* fix me -> {{ build.link }}
         {{/success}}
