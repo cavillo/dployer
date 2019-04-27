@@ -67,7 +67,7 @@ class App extends React.Component<Props, State> {
               component={Containers}
             />
             <Route
-              exact
+              exact={true}
               path="/containers/:id"
               render={this.conteinerLogs}
             />

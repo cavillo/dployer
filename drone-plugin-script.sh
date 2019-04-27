@@ -2,12 +2,14 @@
 
 PLUGIN_API_HOST="localhost"
 PLUGIN_API_PORT="8002"
-PLUGIN_API_TOKEN="9f6dbdb1178e8873bdbb11a8a924b9d04d4a61785e9badfba1feb7ca38e6ed60f2d00facb9aa82c932f8e9519ff5e81609598b7f0492ba0a736930e755cbc596"
-PLUGIN_APPLICATION="dployer"
-PLUGIN_NAMESPACE="sandbox"
-PLUGIN_DEPLOYMENT="hello-world"
-PLUGIN_IMAGE="hello-world"
 
+# PLUGIN_API_TOKEN=""
+# PLUGIN_APPLICATION="dployer"
+# PLUGIN_NAMESPACE="sandbox"
+# PLUGIN_DEPLOYMENT="hello-world"
+# PLUGIN_IMAGE="hello-world"
+
+# Verifying settings
 # PLUGIN_API_HOST
 PLUGIN_API_HOST=${PLUGIN_API_HOST:-"localhost"}
 PLUGIN_API_HOST=$(echo "${PLUGIN_API_HOST}" | sed -e 's|^[^/]*//||' -e 's|/.*$||')

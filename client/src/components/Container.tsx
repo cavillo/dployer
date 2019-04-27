@@ -15,7 +15,7 @@ type Props = {
     logs?: boolean;
     details?: boolean;
     status?: boolean;
-  }
+  },
 };
 
 class ContainerComponent extends ClientComponentBase<Props, State> {

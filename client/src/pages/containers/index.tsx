@@ -49,7 +49,7 @@ class Index extends ClientComponentBase<Props, State> {
   }
 
   selectNameSpace = (namespaceName: string) => {
-    this.setState({ selectedNamespaceName: namespaceName }, ()=>console.log(namespaceName));
+    this.setState({ selectedNamespaceName: namespaceName });
   }
 
   getList = async () => {
@@ -129,7 +129,7 @@ class Index extends ClientComponentBase<Props, State> {
       _.keys(tree).map((appName: string) => (
         <li
           key={appName}
-          onClick={this.selectApp.bind(this,appName)}
+          onClick={this.selectApp.bind(this, appName)}
           className={`list-group-item d-flex justify-content-between align-items-center text-capitalize ${this.state.selectedAppName === appName ? 'active' : ''}`}
         >
           {appName}
@@ -218,10 +218,10 @@ class Index extends ClientComponentBase<Props, State> {
       _.values(application).map(namespace => _.values(namespace).map(deployment => deployment.containers.map(container => container.state))),
     );
     const agg = appContainers.reduce(
-      (agg: {}, status: any) => {
-        const value = _.get(agg, status, 0);
-        _.set(agg, status, value + 1);
-        return agg;
+      (retval: {}, status: any) => {
+        const value = _.get(retval, status, 0);
+        _.set(retval, status, value + 1);
+        return retval;
       },
       {},
     );
@@ -239,10 +239,10 @@ class Index extends ClientComponentBase<Props, State> {
       _.values(namespace).map(deployment => deployment.containers.map(container => container.state)),
     );
     const agg = appContainers.reduce(
-      (agg: {}, status: any) => {
-        const value = _.get(agg, status, 0);
-        _.set(agg, status, value + 1);
-        return agg;
+      (retval: {}, status: any) => {
+        const value = _.get(retval, status, 0);
+        _.set(retval, status, value + 1);
+        return retval;
       },
       {},
     );
