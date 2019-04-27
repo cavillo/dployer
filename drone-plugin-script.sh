@@ -2,11 +2,11 @@
 
 PLUGIN_API_HOST="localhost"
 PLUGIN_API_PORT="8002"
-PLUGIN_API_TOKEN="38512221696296b6c9cfbd4a05344c4c5e82d35d736b8dbd1b70008e7c72ae35dac3b29db8bc1c065a53addd41a8f328cf52adf8feea3cdae1f86a45297182a4"
-PLUGIN_APPLICATION="beerpal"
-PLUGIN_NAMESPACE="dev"
-PLUGIN_DEPLOYMENT="client-web"
-PLUGIN_IMAGE="gcr.io/beerpal/service-api:dev-latest"
+PLUGIN_API_TOKEN="9f6dbdb1178e8873bdbb11a8a924b9d04d4a61785e9badfba1feb7ca38e6ed60f2d00facb9aa82c932f8e9519ff5e81609598b7f0492ba0a736930e755cbc596"
+PLUGIN_APPLICATION="dployer"
+PLUGIN_NAMESPACE="sandbox"
+PLUGIN_DEPLOYMENT="hello-world"
+PLUGIN_IMAGE="hello-world"
 
 # PLUGIN_API_HOST
 PLUGIN_API_HOST=${PLUGIN_API_HOST:-"localhost"}
@@ -72,9 +72,13 @@ echo "|     -d \"${JSON_BODY}\""
 echo "|   ${URL}"
 echo "|"
 
-curl -S -s --fail -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${PLUGIN_API_TOKEN}" -d "${JSON_BODY}" ${URL}
-
-echo ""
-echo "Successfully Finish..."
-exit 0
+if curl --fail -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${PLUGIN_API_TOKEN}" -d "${JSON_BODY}" ${URL}; then
+  echo ""
+  echo "Successfully Finish..."
+  exit 0
+else
+  echo ""
+  echo "Failed..."
+  exit 1
+fi;
 

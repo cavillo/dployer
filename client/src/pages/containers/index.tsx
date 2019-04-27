@@ -44,6 +44,14 @@ class Index extends ClientComponentBase<Props, State> {
     this.getList();
   }
 
+  selectApp = (appName: string) => {
+    this.setState({ selectedAppName: appName, selectedNamespaceName: _.get(_.keys(this.state.tree[appName]), '[0]', '') });
+  }
+
+  selectNameSpace = (namespaceName: string) => {
+    this.setState({ selectedNamespaceName: namespaceName }, ()=>console.log(namespaceName));
+  }
+
   getList = async () => {
     await this.setState({ loading: true });
     const list = await this.client.services.containers.getAll();
@@ -119,9 +127,13 @@ class Index extends ClientComponentBase<Props, State> {
     if (!tree) return null;
     return (
       _.keys(tree).map((appName: string) => (
-        <li key={appName} className="list-group-item d-flex justify-content-between align-items-center text-capitalize">
+        <li
+          key={appName}
+          onClick={this.selectApp.bind(this,appName)}
+          className={`list-group-item d-flex justify-content-between align-items-center text-capitalize ${this.state.selectedAppName === appName ? 'active' : ''}`}
+        >
           {appName}
-          {this.renderApplicationAggregate(appName)}
+          <span>{this.renderApplicationAggregate(appName)}</span>
         </li>
       ))
     );
@@ -132,10 +144,19 @@ class Index extends ClientComponentBase<Props, State> {
 
     if (!selectedAppName) return null;
     if (!tree) return null;
+
     return (
       _.keys(tree[selectedAppName]).map((namespaceName: string) => (
         <li key={namespaceName} className="nav-item">
-          <a className="nav-link active text-capitalize" data-toggle="tab" href={`#${namespaceName}`}>{namespaceName}</a>
+          <a
+            onClick={this.selectNameSpace.bind(this, namespaceName)}
+            className={`nav-link ${selectedNamespaceName === namespaceName ? 'active' : ''} text-capitalize`}
+            data-toggle="tab"
+            href={`#${namespaceName}`}
+          >
+          {namespaceName}
+          <span className="ml-2">{this.renderNamespaceAggregate(selectedAppName, namespaceName)}</span>
+          </a>
         </li>
       ))
     );
@@ -149,9 +170,9 @@ class Index extends ClientComponentBase<Props, State> {
     if (!tree) return null;
     return (
       _.keys(tree[selectedAppName][selectedNamespaceName]).map((deploymentName: string) => (
-        <div key={selectedNamespaceName} className="tab-pane fade active show py-2" id={selectedNamespaceName}>
+        <div key={deploymentName} className="tab-pane fade active show py-2" id={deploymentName}>
           <p className="h5 text-capitalize">{deploymentName}</p>
-          <div className="containers-container d-flex flex-wrap">
+          <div className="containers-container">
             {
               _.map(
                 _.get(tree, `['${selectedAppName}']['${selectedNamespaceName}']['${deploymentName}'].containers`, []),
@@ -164,7 +185,7 @@ class Index extends ClientComponentBase<Props, State> {
     );
   }
 
-  renderContainer = (container: Container) => (<ContainerComponent key={container.id} container={container}/>);
+  renderContainer = (container: Container) => (<ContainerComponent options={{ details: true, logs: true, status: true }} key={container.id} container={container}/>);
 
   getStatusColorLabel = (status: string) => {
     switch (_.toLower(status)) {
@@ -204,7 +225,28 @@ class Index extends ClientComponentBase<Props, State> {
       },
       {},
     );
-    return _.keys(agg).map(
+    return _.keys(agg).sort().map(
+      status => (<span key={status} className={`badge badge-${this.getStatusColorLabel(status)} badge-pill`}>{_.get(agg, `${status}`)}</span>),
+    );
+  }
+
+  renderNamespaceAggregate(appName: string, namespaceName: string) {
+    const { tree } = this.state;
+    if (!tree) return null;
+
+    const namespace = tree[appName][namespaceName];
+    const appContainers = _.flattenDeep(
+      _.values(namespace).map(deployment => deployment.containers.map(container => container.state)),
+    );
+    const agg = appContainers.reduce(
+      (agg: {}, status: any) => {
+        const value = _.get(agg, status, 0);
+        _.set(agg, status, value + 1);
+        return agg;
+      },
+      {},
+    );
+    return _.keys(agg).sort().map(
       status => (<span key={status} className={`badge badge-${this.getStatusColorLabel(status)} badge-pill`}>{_.get(agg, `${status}`)}</span>),
     );
   }

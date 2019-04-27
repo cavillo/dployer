@@ -3,6 +3,7 @@ import dockerode, {
   Container,
 } from 'dockerode';
 import * as _ from 'lodash';
+import stream from'stream';
 import Logger from '../utils/Logger';
 import { application } from 'express';
 
@@ -74,6 +75,54 @@ export default class DockerAgent {
     } catch (error) {
       Logger.error(error);
     }
+  }
+
+  async getContainerLogs(id: string, tail: number = 100): Promise<string[]> {
+    const container: Container = await this.docker.getContainer(id);
+    const logStream = new stream.PassThrough();
+    const logOpts: dockerode.ContainerLogsOptions = {
+      tail,
+      stdout: true,
+      stderr: true,
+      follow: true,
+    };
+
+    const streamLogs = await container.logs(logOpts);
+
+    return new Promise((resolve, reject) => {
+      try {
+        container.modem.demuxStream(streamLogs, logStream, logStream);
+        const logs: string[] = [];
+        streamLogs.on('error', (err) => {
+          logStream.destroy();
+          reject(err);
+        });
+
+        streamLogs.on('end', () => {
+          logStream.destroy();
+          resolve(logs);
+        });
+
+        logStream.on('data', (chunk: any) => {
+          logs.push(chunk.toString('utf8'));
+        });
+
+        setTimeout(
+          () => {
+            logStream.destroy();
+            resolve(logs);
+          },
+          2000,
+        );
+      } catch (error) {
+        logStream.destroy();
+        reject(error);
+      }
+    });
+  }
+
+  async pullImage(image: string) {
+    await this.docker.pull(image, {});
   }
 
   async runContainer(image: string, cmd: string[], args: DFilters = {}) {
@@ -164,6 +213,10 @@ export default class DockerAgent {
       }
       // removing conflicting containers
 
+      // pulling latest image
+      await this.pullImage(createOptions.Image);
+
+      // creating container
       let container: Container = await this.docker.createContainer(createOptions);
 
       container = await container.start();

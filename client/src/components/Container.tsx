@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import moment from 'moment';
-import ClientComponentBase from '../components/ClientComponentBase';
+import ClientComponentBase from './ClientComponentBase';
 import { Container } from '../model/Container';
 
 type State = {
@@ -11,6 +11,11 @@ type State = {
 
 type Props = {
   container: Container,
+  options?: {
+    logs?: boolean;
+    details?: boolean;
+    status?: boolean;
+  }
 };
 
 class ContainerComponent extends ClientComponentBase<Props, State> {
@@ -25,6 +30,13 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
       loading: false,
       container: this.props.container,
     });
+  }
+
+  getContainerLogs = async (id: string) => {
+    await this.setState({ loading: true });
+    const logs: string[] = await this.client.services.containers.logs(id);
+    console.log(logs);
+    this.setState({ loading: false });
   }
 
   stopContainer = async (id: string) => {
@@ -58,19 +70,19 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
   getStatusIcon = (status: string) => {
     switch (_.toLower(status)) {
       case 'created':
-        return <i className="fas fa-check mr-3"/>;
+        return <i className="fas fa-check"/>;
       case 'restarting':
-        return <i className="fas fa-clock mr-3"/>;
+        return <i className="fas fa-clock"/>;
       case 'running':
-        return <i className="fas fa-play mr-3"/>;
+        return <i className="fas fa-play"/>;
       case 'removing':
-        return <i className="fas fa-clock mr-3"/>;
+        return <i className="fas fa-clock"/>;
       case 'paused':
-        return <i className="fas fa-paused mr-3"/>;
+        return <i className="fas fa-paused"/>;
       case 'exited':
-        return <i className="fas fa-times-circle mr-3"/>;
+        return <i className="fas fa-times-circle"/>;
       case 'dead':
-        return <i className="fas fa-skull-crossbones mr-3"/>;
+        return <i className="fas fa-skull-crossbones"/>;
 
       default:
         return 'x';
@@ -103,24 +115,14 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
     `${_.get(container, 'application')}.${_.get(container, 'deployment')}.${_.get(container, 'namespace')}`
   )
 
-  renderContainer = (container: any) => (
-    <div className="container-card hvr-ripple-out" key={_.get(container, 'id')}>
-      <div className={`card border-${this.getStatusColorLabel(_.get(container, 'state', ''))} shadow-sm`}>
-        <div className="card-header">
-          {_.trim(_.get(container, 'deployment'), '/')}
-          <br />
-          <span className="small">{_.get(container, 'status')}</span>
-        </div>
-        <div className="card-body">
-          <p className="small mb-0 text-primary text-capitalize">code</p>
-          <p className="small mb-1">{this.getContainerCodeName(container)}</p>
-          <p className="small mb-0 text-primary text-capitalize">created</p>
-          <p className="small mb-0">{moment(_.get(container, 'createdAt') * 1000).fromNow()}</p>
-        </div>
-        <div className="card-body p-0">
-          <div className="btn-group btn-block p-1">
+  renderOptions = (container: Container) => (
+    <div className="btn-group float-right" role="group" aria-label="Container options">
+      {_.get(this.props.options, 'logs', false) ? <a href={`/containers/${container.id}`} className="btn btn-sm btn-secondary" onClick={this.getContainerLogs.bind(this, _.get(container, 'id'))}>Logs</a> : null}
+      {_.get(this.props.options, 'details', false) ? <a href={`/containers/${container.id}`} className="btn btn-sm btn-secondary">Details</a> : null}
+      {_.get(this.props.options, 'status', false) ?
+        (
+          <div className="btn-group dropup">
             <button className="btn btn-secondary btn-sm dropdown-toggle text-left" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {this.getStatusIcon(_.get(container, 'state', ''))}
               {_.capitalize(_.get(container, 'state'))}
             </button>
             <div className="dropdown-menu">
@@ -129,6 +131,34 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
               <button className="dropdown-item" onClick={this.killContainer.bind(this, _.get(container, 'id'))}>Kill</button>
               <button className="dropdown-item" onClick={this.removeContainer.bind(this, _.get(container, 'id'))}>Remove</button>
             </div>
+          </div>
+        ) : null
+      }
+    </div>
+  )
+
+  renderContainer = (container: any) => (
+    <div className="w-100 hvr-ripple-out" key={_.get(container, 'id')}>
+      <div className="card shadow p-2 rounded-lg">
+        <div className="card-body mb-1 p-0">
+          <p className="mb-0">
+            <span className={`text-${this.getStatusColorLabel(_.get(container, 'state', ''))} mr-2`}>{this.getStatusIcon(_.get(container, 'state', ''))}</span>
+            <span className="small float-right text-muted">{_.get(container, 'status', '')}</span>
+            <span className="font-weight-bold">{_.trim(_.get(container, 'deployment'), '/')}</span>
+          </p>
+        </div>
+        <div className="card-body p-0 d-flex flex-row">
+          <div className="d-flex flex-grow-1 align-items-end">
+            <p className="small mb-0">
+              <span className="text-monospace bg-light">{_.get(container, 'id')}</span>
+              <br/>
+              <span className="text-monospace bg-light">{this.getContainerCodeName(container)}</span>
+              <br/>
+              <span className="text-monospace bg-light mr-2">{_.get(container, 'image')}</span>created<span className="font-italic text-monospace bg-light ml-2">{moment(_.get(container, 'createdAt') * 1000).fromNow()}</span>
+            </p>
+          </div>
+          <div className="d-flex align-items-end">
+            {this.renderOptions(container)}
           </div>
         </div>
       </div>

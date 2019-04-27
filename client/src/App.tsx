@@ -7,11 +7,10 @@ import {
   Route,
 } from 'react-router';
 
-import {
-  Home,
-  Containers,
-  Login,
-} from './pages';
+import Home from './pages/home';
+import Containers from './pages/containers';
+import ContainerView from './pages/containers/view';
+import Login from './pages/login';
 import './App.css';
 
 import ClientServices from './services';
@@ -42,6 +41,12 @@ class App extends React.Component<Props, State> {
     this.setState({ token, loading: false });
   }
 
+  conteinerLogs = (data: any) => (
+    <ContainerView
+      containerId={data.match.params.id}
+    />
+  )
+
   render() {
     if (this.state.loading) return <div>Loading...</div>;
 
@@ -51,8 +56,21 @@ class App extends React.Component<Props, State> {
       <div>
         <Router>
           <Switch>
-            <Route exact={true} path="/" component={Home} />
-            <Route path="/containers" component={Containers} />
+            <Route
+              exact={true}
+              path="/"
+              component={Home}
+            />
+            <Route
+              exact={true}
+              path="/containers"
+              component={Containers}
+            />
+            <Route
+              exact
+              path="/containers/:id"
+              render={this.conteinerLogs}
+            />
           </Switch>
         </Router>
       </div>
