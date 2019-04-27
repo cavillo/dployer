@@ -84,7 +84,7 @@ steps:
     #   branch: master
 
   - name: plugin-test
-    image: cavillo/dployer-drone-plugin
+    image: cavillo/dployer-drone-plugin:latest
     settings:
       api_host: 'cavillo.co'
       api_port: 8002
