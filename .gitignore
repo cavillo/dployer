@@ -6,3 +6,4 @@ typings
 *.log
 dist
 docker-compose-local.yml
+.vscode
