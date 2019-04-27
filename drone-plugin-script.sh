@@ -13,7 +13,7 @@ echo '--------- DPLOYER DRONE PLUGIN ---------'
 echo 'Settings:'
 echo "--- PLUGIN_API_HOST    = ${PLUGIN_API_HOST}"
 echo "--- PLUGIN_API_PORT    = ${PLUGIN_API_PORT}"
-echo "--- PLUGIN_API_TOKEN   = ${PLUGIN_API_TOKEN}"
+echo "--- PLUGIN_API_TOKEN   = ***SECRET***"
 echo "--- PLUGIN_APPLICATION = ${PLUGIN_APPLICATION}"
 echo "--- PLUGIN_NAMESPACE   = ${PLUGIN_NAMESPACE}"
 echo "--- PLUGIN_DEPLOYMENT  = ${PLUGIN_DEPLOYMENT}"
