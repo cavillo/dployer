@@ -79,9 +79,9 @@ steps:
       tags:
         - latest
         - '${DRONE_BUILD_NUMBER}'
-    when:
-      event: push
-      branch: master
+    # when:
+    #   event: push
+    #   branch: master
 
   - name: plugin-test
     image: cavillo/dployer-drone-plugin
