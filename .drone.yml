@@ -83,6 +83,17 @@ steps:
       event: push
       branch: master
 
+  - name: plugin-test
+    image: cavillo/dployer-drone-plugin
+    settings:
+      api_host: cavillo.co
+      api_port: 8002
+      api_token: dployer_token
+      application: test-app
+      namespace: test
+      deployment: hello-world
+      image: hello-world
+
   - name: slack-build-finished
     image: plugins/slack
     settings:
