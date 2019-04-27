@@ -12,7 +12,7 @@ export default class RouteHandlerHealthGet extends Route {
     this.url = '/authenticate';
   }
 
-  public async callback(req: Request, res: Response): Promise<any> {
+  public async callback(req: Request, res: Response) {
     try {
       const { token } = req.body;
 
@@ -25,13 +25,12 @@ export default class RouteHandlerHealthGet extends Route {
         throw Error('Invalid token');
       }
 
-      for (const auth of auths) {
-        if (auth.token === token) {
-          res.json({ token });
-        }
+      const storedToken = _.find(auths, a => (a.token === token));
+      if (_.isNil(storedToken)) {
+        throw Error('Invalid token');
       }
 
-      throw Error('Invalid token');
+      res.json({ token });
     } catch (ex) {
       return this.detectKnownErrors(ex, res);
     }
