@@ -16,3 +16,9 @@ RUN npm install --silent
 COPY client ./
 CMD ["npm", "run", "start-prod"]
 
+# DRONE_PLUGIN
+FROM alpine as dployer-drone-plugin
+ADD drone-plugin-script.sh /bin/
+RUN chmod +x /bin/drone-plugin-script.sh
+RUN apk -Uuv add curl ca-certificates
+ENTRYPOINT /bin/drone-plugin-script.sh

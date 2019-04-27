@@ -66,6 +66,23 @@ steps:
       event: push
       branch: master
 
+  - name: dockerize-drone-plugin
+    image: plugins/docker
+    settings:
+      repo: cavillo/dployer-drone-plugin
+      target: dployer-drone-plugin
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      auto_tag: true
+      tags:
+        - latest
+        - '${DRONE_BUILD_NUMBER}'
+    when:
+      event: push
+      branch: master
+
   - name: slack-build-finished
     image: plugins/slack
     settings:
