@@ -4,16 +4,16 @@ services:
     image: 'redis:latest'
     ports:
       - '6379:6379'
-  # api:
-  #   image: 'cavillo/dployer-api:latest'
-  #   environment:
-  #     - REDIS_HOST=redis
-  #     - REDIS_PORT=6379
-  #   ports:
-  #     - '8002:8002'
-  # client:
-  #   image: 'cavillo/dployer-client:latest'
-  #   environment:
-  #     - DPLOYER_API_URL=http://localhost:8002
-  #   ports:
-  #     - '3000:3000'
+  api:
+    image: 'cavillo/dployer-api:latest'
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - '8002:8002'
+  client:
+    image: 'cavillo/dployer-client:latest'
+    environment:
+      - DPLOYER_API_URL=http://localhost:8002
+    ports:
+      - '3000:3000'
