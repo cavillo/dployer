@@ -1,17 +1,26 @@
 #!/bin/sh
 
-PLUGIN_API_HOST="localhost"
-PLUGIN_API_PORT="8002"
+PLUGIN_API_HOST=${PLUGIN_API_HOST:-"localhost"}
+PLUGIN_API_PORT=${PLUGIN_API_PORT:-"8002"}
 
-# PLUGIN_API_TOKEN=""
+# PLUGIN_API_TOKEN="123"
 # PLUGIN_APPLICATION="dployer"
 # PLUGIN_NAMESPACE="sandbox"
 # PLUGIN_DEPLOYMENT="hello-world"
 # PLUGIN_IMAGE="hello-world"
 
+echo '--------- DPLOYER DRONE PLUGIN ---------'
+echo 'Settings:'
+echo "--- PLUGIN_API_HOST    = ${PLUGIN_API_HOST}"
+echo "--- PLUGIN_API_PORT    = ${PLUGIN_API_PORT}"
+echo "--- PLUGIN_API_TOKEN   = ***SECRET***"
+echo "--- PLUGIN_APPLICATION = ${PLUGIN_APPLICATION}"
+echo "--- PLUGIN_NAMESPACE   = ${PLUGIN_NAMESPACE}"
+echo "--- PLUGIN_DEPLOYMENT  = ${PLUGIN_DEPLOYMENT}"
+echo "--- PLUGIN_IMAGE       = ${PLUGIN_IMAGE}"
+
 # Verifying settings
 # PLUGIN_API_HOST
-PLUGIN_API_HOST=${PLUGIN_API_HOST:-"localhost"}
 PLUGIN_API_HOST=$(echo "${PLUGIN_API_HOST}" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
 if [ -z "$PLUGIN_API_HOST" ]
 then
