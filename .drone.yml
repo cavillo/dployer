@@ -92,8 +92,8 @@ steps:
         from_secret: dployer_token
       application: test-app
       namespace: test
-      deployment: hello-world
-      image: hello-world
+      deployment: hello-seattle
+      image: hello-seattle
 
   - name: slack-build-finished
     image: plugins/slack
