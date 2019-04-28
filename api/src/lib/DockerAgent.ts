@@ -133,7 +133,7 @@ export default class DockerAgent {
         };
         this.docker.modem.followProgress(stream, onFinished, onProgress);
       });
-    })
+    });
   }
 
   async runContainer(image: string, cmd: string[], args: DFilters = {}) {

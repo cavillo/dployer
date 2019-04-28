@@ -36,7 +36,7 @@ export default class Api {
 
     const cleanup = () => {
       res.removeListener('finish', logFinish);
-    }
+    };
 
     const logFinish = () => {
       cleanup();
