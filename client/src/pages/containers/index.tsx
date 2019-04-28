@@ -91,7 +91,6 @@ class Index extends ClientComponentBase<Props, State> {
   renderTree = () => {
     const { selectedAppName, tree } = this.state;
 
-    if (!selectedAppName) return null;
     if (!tree) return null;
     return (
       <div className="row">
@@ -165,7 +164,7 @@ class Index extends ClientComponentBase<Props, State> {
   renderDeployments() {
     const { selectedAppName, selectedNamespaceName, tree } = this.state;
 
-    if (!selectedAppName) return null;
+    if (!selectedAppName) return <p>No containers...</p>;
     if (!selectedNamespaceName) return null;
     if (!tree) return null;
     return (
@@ -259,14 +258,7 @@ class Index extends ClientComponentBase<Props, State> {
     return (
       <Layout pageName="Home">
         <div className="container-fluid">
-          {_.isArray(list) && list.length > 0 ? (
-            this.renderTree()
-          ) : (
-              <div>
-                <h2>No List Items Found</h2>
-              </div>
-            )
-          }
+            {this.renderTree()}
         </div>
       </Layout>
     );

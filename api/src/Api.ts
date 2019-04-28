@@ -32,7 +32,28 @@ export default class Api {
   }
 
   private logRoute = (req: Request, res: Response, next: NextFunction) => {
-    Logger.log(`${req.method} ${req.originalUrl}`); // '/admin/new'
+    Logger.log(`${req.method} ${req.originalUrl}`);
+
+    const cleanup = () => {
+      res.removeListener('finish', logFinish);
+    };
+
+    const logFinish = () => {
+      cleanup();
+
+      let log = Logger.log;
+      if (res.statusCode >= 500) {
+        log = Logger.error;
+      } else if (res.statusCode >= 400) {
+        log = Logger.error;
+      } else if (res.statusCode < 300 && res.statusCode >= 200) {
+        log = Logger.ok;
+      }
+      log(`${req.method} ${req.originalUrl} ${res.statusCode}`);
+    };
+
+    res.on('finish', logFinish);
+
     next();
   }
 

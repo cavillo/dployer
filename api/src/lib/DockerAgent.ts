@@ -122,11 +122,25 @@ export default class DockerAgent {
   }
 
   async pullImage(image: string) {
-    await this.docker.pull(image, {});
+    return new Promise((resolve, reject) => {
+      this.docker.pull(image, (err: any, stream: stream) => {
+        if (err) reject();
+        const onFinished = (err: Error, output: any) => {
+          resolve();
+        };
+        const onProgress = (event: any) => {
+          // Logger.log(`${_.get(event, 'status', '')} ${_.get(event, 'progress', '')}`);
+        };
+        this.docker.modem.followProgress(stream, onFinished, onProgress);
+      });
+    });
   }
 
   async runContainer(image: string, cmd: string[], args: DFilters = {}) {
     try {
+
+      await this.pullImage(image);
+
       const createOptions: any = {
         Image: image,
         Cmd: cmd ? cmd : [],
@@ -193,8 +207,10 @@ export default class DockerAgent {
         name: createOptions.name,
       };
       const containers: ContainerInfo[] = await this.getContainers(filters) || [];
+
+      // removing conflicting containers
       for (const containerInfo of containers) {
-        Logger.log('Stopping container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
+        // Logger.log('Stopping existing container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
         const container = await this.docker.getContainer(containerInfo.Id);
         try {
           await container.stop();
@@ -203,18 +219,14 @@ export default class DockerAgent {
           Logger.error(error.message);
         }
 
-        Logger.log('Removing container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
+        // Logger.log('Removing existing container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
         try {
           await container.remove();
-          Logger.ok('Removed...');
+          // Logger.ok('Removed...');
         } catch (error) {
           Logger.error(error.message);
         }
       }
-      // removing conflicting containers
-
-      // pulling latest image
-      await this.pullImage(createOptions.Image);
 
       // creating container
       let container: Container = await this.docker.createContainer(createOptions);
