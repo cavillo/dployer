@@ -257,7 +257,7 @@ class Index extends ClientComponentBase<Props, State> {
 
     return (
       <Layout pageName="Home">
-        <div className="container-fluid">
+        <div className="container">
             {this.renderTree()}
         </div>
       </Layout>

@@ -2,11 +2,11 @@
   "name": "dployer-drone-plugin",
   "version": "1.0.0",
   "description": "Drone plugin to interact with Dployer API",
-  "main": "dist/index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "ts-node index.ts",
     "build": "rm -rf dist && tsc -p .",
-    "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "build:live": "nodemon --watch './**/*.ts' --exec 'ts-node' index.ts",
     "clean": "rm -rf dist",
     "test": "mocha --timeout=20000 'test/**/*.test.ts'",
     "lint": "node_modules/.bin/tslint --project ./tsconfig.json"

@@ -70,7 +70,7 @@ class View extends ClientComponentBase<Props, State> {
 
     if (loading) return (
       <Layout pageName="Container-Detail">
-        <div className="container-fluid">
+        <div className="container">
           <div>Loading...</div>
         </div>
       </Layout>
@@ -79,7 +79,7 @@ class View extends ClientComponentBase<Props, State> {
 
     return (
       <Layout pageName="Container-Detail">
-        <div className="container-fluid">
+        <div className="container">
           <div className="row my-3">
             <div className="col-12">
               <a className="btn btn-secondary btn-sm float-right " href="/containers" role="button">Back to list</a>
