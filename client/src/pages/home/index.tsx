@@ -29,7 +29,7 @@ class Index extends React.Component<Props, State> {
 
     return (
       <Layout pageName="Home">
-        <div className="container-fluid">
+        <div className="container">
           <h1>D-Ployer</h1>
           <Link to={'./containers'}>
             <button>

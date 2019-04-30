@@ -36,7 +36,7 @@ class Layout extends React.Component<Props, State> {
     const { isAuthenticated } = this.state;
     if (isAuthenticated) {
       return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <nav className="navbar navbar-expand-lg navbar-light bg-light container">
           <a className="navbar-brand" href="/">Dployer</a>
           <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"/>

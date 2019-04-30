@@ -32,6 +32,17 @@ steps:
       event: [ pull_request ]
       branch: master
 
+  - name: lint-drone-plugin
+    group: lint
+    image: node:latest
+    commands:
+    - cd drone-plugin
+    - npm i --silent
+    - npm run lint
+    when:
+      event: [ pull_request ]
+      branch: master
+
   - name: dockerize-api
     image: plugins/docker
     settings:
