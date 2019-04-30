@@ -32,6 +32,17 @@ steps:
       event: [ pull_request ]
       branch: master
 
+  - name: lint-drone-plugin
+    group: lint
+    image: node:latest
+    commands:
+    - cd drone-plugin
+    - npm i --silent
+    - npm run lint
+    when:
+      event: [ pull_request ]
+      branch: master
+
   - name: dockerize-api
     image: plugins/docker
     settings:
@@ -83,20 +94,6 @@ steps:
       event: push
       branch: master
 
-  - name: plugin-test
-    image: cavillo/dployer-drone-plugin:latest
-    settings:
-      api_host: 'cavillo.co'
-      api_port: 8002
-      api_token:
-        from_secret: dployer_token
-      application: test-app
-      namespace: test
-      deployment: hello-seattle
-      image: hello-seattle
-      port_bindings:
-        - 8003:8003
-
   - name: slack-build-finished
     image: plugins/slack
     settings:
@@ -111,16 +108,3 @@ steps:
     when:
       event: [ push, pull_request ]
       branch: master
-
-
-
-# {\"${PORT[0]}\": [\"127.0.0.1\",\"${PORT[1]}\"]}
-
-# 
-# {
-# 	"application":"dployer",
-# 	"namespace":"test",
-# 	"deployment":"hello-world",
-# 	"image":"hello-world",
-# 	"portBindings": [{"8003": ["127.0.0.1","8003"]}]
-# }

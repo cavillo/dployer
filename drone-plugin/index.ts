@@ -14,7 +14,6 @@ const PLUGIN_DEPLOYMENT     = _.get(process.env, 'PLUGIN_DEPLOYMENT'  , '');
 const PLUGIN_IMAGE          = _.get(process.env, 'PLUGIN_IMAGE'       , '');
 const PLUGIN_PORT_BINDINGS  = _.get(process.env, 'PORT_BINDINGS'      , '');
 
-
 interface PluginParameters {
   host: string;
   port: string;
@@ -29,20 +28,19 @@ interface PluginParameters {
 class DployerDronePlugin {
   parameters: PluginParameters;
 
-  constructor(){
+  constructor() {
+    this.parameters = this.parseParameters();
   }
 
   private parseParameters(): PluginParameters {
     const retval: PluginParameters = {
       host: ((url) => {
-          var match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
-          if (match !== null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
+        const match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
+        if (match !== null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
           return match[2];
-          }
-          else {
-              return 'localhost';
-          }
-        })(PLUGIN_API_HOST),
+        }
+        return 'localhost';
+      })(PLUGIN_API_HOST),
       port: PLUGIN_API_PORT,
       token: PLUGIN_API_TOKEN,
       application: PLUGIN_APPLICATION,
@@ -61,7 +59,7 @@ class DployerDronePlugin {
       }
 
       const portBinding: any = {};
-      portBinding[ports[0]] = ["127.0.0.1",ports[1]];
+      portBinding[ports[0]] = ['127.0.0.1', ports[1]];
       retval.portBindings.push(portBinding);
     }
 
@@ -70,17 +68,21 @@ class DployerDronePlugin {
       if (_.isObject(param)) return JSON.stringify(param);
       if (_.isArray(param)) return _.map(param, printParameter).toString();
       return param.toString();
-    }
+    };
 
-    console.log(`Parameters:`);
-    _.keys(retval).map( (key: string) => {
-      console.log(`--- PLUGIN_${_.toUpper(_.snakeCase(key))} = ${printParameter(retval[key])}`);
+    console.log('Parameters');
+    _.keys(retval).map((key: string) => {
+      console.log(`--- PLUGIN_${_.toUpper(_.snakeCase(key))} = ${printParameter(_.get(retval, key))}`);
     });
 
     return retval;
   }
 
   private validateParameters() {
+    if (!this.parameters) {
+      console.log('Error', 'Missing PARAMETERS ...');
+      return process.exit(1);
+    }
     if (_.isNil(this.parameters.host) || this.parameters.host === '') {
       console.log('Error', 'Missing PLUGIN_API_HOST ...');
       process.exit(1);
@@ -139,8 +141,7 @@ class DployerDronePlugin {
   }
 
   public async run() {
-    console.log(`--------- DPLOYER DRONE PLUGIN ---------`);
-    this.parameters = this.parseParameters();
+    console.log('--------- DPLOYER DRONE PLUGIN ---------');
     this.validateParameters();
     await this.callAPI();
   }
@@ -153,7 +154,7 @@ const plugin = new DployerDronePlugin();
 plugin
   .run()
   .then(
-    data => {
+    (data) => {
       console.log(
         'Successfully finish',
         JSON.stringify(data),
@@ -161,7 +162,7 @@ plugin
       process.exit(0);
     })
   .catch(
-    error => {
+    (error) => {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -184,5 +185,5 @@ plugin
         console.log('Error', error.message);
       }
       process.exit(1);
-    }
+    },
   );
