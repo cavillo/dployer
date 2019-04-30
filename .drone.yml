@@ -94,6 +94,8 @@ steps:
       namespace: test
       deployment: hello-seattle
       image: hello-seattle
+      port_bindings:
+        - 8003:8003
 
   - name: slack-build-finished
     image: plugins/slack
@@ -109,3 +111,16 @@ steps:
     when:
       event: [ push, pull_request ]
       branch: master
+
+
+
+# {\"${PORT[0]}\": [\"127.0.0.1\",\"${PORT[1]}\"]}
+
+# 
+# {
+# 	"application":"dployer",
+# 	"namespace":"test",
+# 	"deployment":"hello-world",
+# 	"image":"hello-world",
+# 	"portBindings": [{"8003": ["127.0.0.1","8003"]}]
+# }

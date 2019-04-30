@@ -22,3 +22,11 @@ ADD drone-plugin-script.sh /bin/
 RUN chmod +x /bin/drone-plugin-script.sh
 RUN apk -Uuv add curl ca-certificates
 ENTRYPOINT /bin/drone-plugin-script.sh
+
+# DRONE PLUGIN NODE
+FROM node:latest as dployer-drone-plugin-node
+WORKDIR '/dployer/drone-plugin'
+COPY drone-plugin/package.json ./
+RUN npm install --silent
+COPY drone-plugin ./
+CMD ["npm", "start"]
