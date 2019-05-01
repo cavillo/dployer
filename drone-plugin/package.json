@@ -4,9 +4,8 @@
   "description": "Drone plugin to interact with Dployer API",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node index.ts",
+    "start": "./node_modules/ts-node/dist/bin.js index.ts",
     "build": "rm -rf dist && tsc -p .",
-    "build:live": "nodemon --watch './**/*.ts' --exec 'ts-node' index.ts",
     "clean": "rm -rf dist",
     "test": "mocha --timeout=20000 'test/**/*.test.ts'",
     "lint": "node_modules/.bin/tslint --project ./tsconfig.json"

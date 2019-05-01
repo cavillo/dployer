@@ -4,9 +4,8 @@
   "description": "Docker Deployment Manager",
   "main": "dist/index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "./node_modules/ts-node/dist/bin.js src/index.ts",
     "build": "rm -rf dist && tsc -p .",
-    "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "clean": "rm -rf dist",
     "test": "mocha --timeout=20000 'test/**/*.test.ts'",
     "lint": "node_modules/.bin/tslint --project ./tsconfig.json"

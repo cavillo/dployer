@@ -35,11 +35,7 @@ class DployerDronePlugin {
   private parseParameters(): PluginParameters {
     const retval: PluginParameters = {
       host: ((url) => {
-        const match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
-        if (match !== null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
-          return match[2];
-        }
-        return 'localhost';
+        return url.replace('http://', '').replace('https://', '').split(/[/?#]/)[0];
       })(PLUGIN_API_HOST),
       port: PLUGIN_API_PORT,
       token: PLUGIN_API_TOKEN,
