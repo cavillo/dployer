@@ -16,9 +16,14 @@ RUN npm install --silent
 COPY client ./
 CMD ["npm", "run", "start-prod"]
 
-# DRONE_PLUGIN
-FROM alpine as dployer-drone-plugin
-ADD drone-plugin-script.sh /bin/
-RUN chmod +x /bin/drone-plugin-script.sh
+# DRONE PLUGIN NODE
+FROM node:alpine as dployer-drone-plugin
+WORKDIR '/dployer/drone-plugin'
+RUN npm i -g --silent typescript
+RUN npm i -g --silent ts-node
+COPY drone-plugin/package*.json ./
+RUN npm i --silent
+COPY drone-plugin/index.ts ./index.ts
+RUN chmod +x /dployer/drone-plugin/index.ts
 RUN apk -Uuv add curl ca-certificates
-ENTRYPOINT /bin/drone-plugin-script.sh
+ENTRYPOINT /dployer/drone-plugin/index.ts

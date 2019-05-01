@@ -18,6 +18,19 @@ export default class ContainersService extends ServiceBase {
     }
   }
 
+  public async getOne(id: string): Promise<Container> {
+    try {
+      const response = await this.api.get(`/containers/${id}`);
+      const retval: Container = _.get(response, 'container', null);
+
+      if (!retval) throw new Error('No container found');
+
+      return retval;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async stop(id: string): Promise<Container> {
     try {
       const response = await this.api.post(`/containers/${id}/stop`, {});
@@ -52,6 +65,16 @@ export default class ContainersService extends ServiceBase {
     try {
       const response = await this.api.post(`/containers/${id}/remove`, {});
       const retval: Container = _.get(response, 'container');
+      return retval;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async logs(id: string): Promise<string[]> {
+    try {
+      const response = await this.api.get(`/containers/${id}/logs`);
+      const retval: string[] = _.get(response, 'logs', []);
       return retval;
     } catch (err) {
       throw err;

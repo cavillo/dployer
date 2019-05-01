@@ -3,7 +3,6 @@ import * as CryptoJS from 'crypto-js';
 import * as bodyParser from 'body-parser';
 import cors from 'cors';
 import * as glob from 'glob';
-// import * as admin from 'firebase-admin';
 import * as path from 'path';
 import * as _ from 'lodash';
 
@@ -14,7 +13,6 @@ import DockerAgent from './lib/DockerAgent';
 import { Route, IAppResource } from './lib/Route';
 import { Authentication } from './model';
 import conf from './conf';
-// import * as serviceAccountJson from './firebase-adminsdk.json';
 
 // constants/variables
 const trustedEndpoints = ['get', 'delete', 'put', 'patch', 'post', 'ws'];
@@ -34,7 +32,28 @@ export default class Api {
   }
 
   private logRoute = (req: Request, res: Response, next: NextFunction) => {
-    Logger.log(`${req.method} ${req.originalUrl}`); // '/admin/new'
+    Logger.log(`${req.method} ${req.originalUrl}`);
+
+    const cleanup = () => {
+      res.removeListener('finish', logFinish);
+    };
+
+    const logFinish = () => {
+      cleanup();
+
+      let log = Logger.log;
+      if (res.statusCode >= 500) {
+        log = Logger.error;
+      } else if (res.statusCode >= 400) {
+        log = Logger.error;
+      } else if (res.statusCode < 300 && res.statusCode >= 200) {
+        log = Logger.ok;
+      }
+      log(`${req.method} ${req.originalUrl} ${res.statusCode}`);
+    };
+
+    res.on('finish', logFinish);
+
     next();
   }
 
@@ -47,17 +66,6 @@ export default class Api {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     // support cors
     this.app.use(cors());
-
-    // // Configure Firebase
-    // try {
-    //   const serviceAccount: admin.ServiceAccount = {};
-    //   admin.initializeApp({
-    //     credential: admin.credential.cert(Object.assign(serviceAccount, serviceAccountJson)),
-    //     databaseURL: conf.firebaseConfig.databaseURL,
-    //   });
-    // } catch (e) {
-    //   console.log(e);
-    // }
   }
 
   public async init() {
