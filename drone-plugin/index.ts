@@ -139,7 +139,7 @@ class DployerDronePlugin {
   public async run() {
     console.log('--------- DPLOYER DRONE PLUGIN ---------');
     this.validateParameters();
-    await this.callAPI();
+    return await this.callAPI();
   }
 }
 
