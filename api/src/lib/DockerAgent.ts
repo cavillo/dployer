@@ -294,6 +294,33 @@ export default class DockerAgent {
     }
   }
 
+  async getContainerStats(id: string) {
+    try {
+
+      // Getting conflicting containers
+      const filters: any = {
+        id,
+      };
+      const containersInfo: ContainerInfo[] = await this.getContainers(filters) || [];
+
+      if (_.isEmpty(containersInfo)) {
+        throw Error('No container found');
+      }
+      const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
+      try {
+        await container.stats();
+        Logger.ok('Stats...');
+      } catch (error) {
+        Logger.error(error.message);
+      }
+
+      return await this.getContainers({ id: container.id });
+    } catch (error) {
+      Logger.error(error);
+      throw error;
+    }
+  }
+
   async removeContainer(id: string) {
     try {
 
