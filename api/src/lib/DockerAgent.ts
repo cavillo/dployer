@@ -3,7 +3,7 @@ import dockerode, {
   Container,
 } from 'dockerode';
 import * as _ from 'lodash';
-import stream from'stream';
+import stream from 'stream';
 import Logger from '../utils/Logger';
 import { application } from 'express';
 
@@ -288,6 +288,35 @@ export default class DockerAgent {
       }
 
       return await this.getContainers({ id: container.id });
+    } catch (error) {
+      Logger.error(error);
+      throw error;
+    }
+  }
+
+  async getContainerStats(id: string) {
+    try {
+
+      // Getting conflicting containers
+      const filters: any = {
+        id,
+      };
+      const containersInfo: ContainerInfo[] = await this.getContainers(filters) || [];
+
+      if (_.isEmpty(containersInfo)) {
+        throw Error('No container found');
+      }
+      const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
+      try {
+        const stats = await container.stats();
+        // Logger.log(JSON.stringify(stats));
+        console.log(stats);
+        // return JSON.stringify(stats);
+      } catch (error) {
+        Logger.error(error.message);
+      }
+
+      // return await this.getContainers({ id: container.id });
     } catch (error) {
       Logger.error(error);
       throw error;
