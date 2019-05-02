@@ -3,7 +3,7 @@ import dockerode, {
   Container,
 } from 'dockerode';
 import * as _ from 'lodash';
-import stream from'stream';
+import stream from 'stream';
 import Logger from '../utils/Logger';
 import { application } from 'express';
 
@@ -308,13 +308,15 @@ export default class DockerAgent {
       }
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
       try {
-        await container.stats();
-        Logger.ok('Stats...');
+        const stats = await container.stats();
+        // Logger.log(JSON.stringify(stats));
+        console.log(stats);
+        // return JSON.stringify(stats);
       } catch (error) {
         Logger.error(error.message);
       }
 
-      return await this.getContainers({ id: container.id });
+      // return await this.getContainers({ id: container.id });
     } catch (error) {
       Logger.error(error);
       throw error;
