@@ -8,7 +8,7 @@ Dployer is a tool for easily automating the deployment of dockerized application
   - Web client (dashboard)
 
 Dployer makes simple the deployment cycle (deploy-monitor-redeploy) of an application or project. What it provides is an abstraction to the `docker api` and a re-organization of grouped containers that makes sense to your business demands.
-Dployer structure the deployed containers into **applications**, **namescpaces** and **deployments**. Applications have namespaces, namespaces have deployments.
+Dployer structure the deployed containers into **applications**, **namespaces** and **deployments**. Applications have namespaces, namespaces have deployments.
 
 # Installation
 
@@ -17,7 +17,7 @@ Dployer structure the deployed containers into **applications**, **namescpaces**
 
 ## Via docker-compose
 
-The eaiest and fastest way is by using docker-compose.
+The easiest and fastest way is by using docker-compose.
 In your server create a `docker-compose.yml` file and copy the following:
 
 > Set **DPLOYER_API_URL** as the external DNS or ip address (including port) for your server.
