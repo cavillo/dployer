@@ -154,7 +154,7 @@ class View extends ClientComponentBase<Props, State> {
           <div className="mb-3">
             <ContainerComponent container={container} options={{ status: true }}/>
           </div>
-          { this.renderStats() }
+          {this.renderStats()}
           <div className="card shadow rounded-lg mb-3">
             <div className="card-body p-2">
               <div className="row">
