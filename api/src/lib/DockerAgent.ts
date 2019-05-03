@@ -333,7 +333,7 @@ export default class DockerAgent {
           currentPids,
           memoryUsage: this.formatBytes(memoryUsage),
           memoryLimit: this.formatBytes(memoryLimit),
-        }
+        },
       };
 
       return retval;
