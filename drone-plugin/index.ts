@@ -7,11 +7,11 @@ configureEnvironmentVariables();
 
 const PLUGIN_API_HOST       = _.get(process.env, 'PLUGIN_API_HOST'    , 'localhost');
 const PLUGIN_API_PORT       = _.get(process.env, 'PLUGIN_API_PORT'    , '8002');
-const PLUGIN_API_TOKEN = _.get(process.env, 'PLUGIN_API_TOKEN', 'f5b43d8d9c539bd4bb9fd1ce54fcf5feff75b9385ab3f97ac1027b50ea8b01ac82ca5b4c06cef43271f22d8d10aa50b132deb5f98ef65ce9f3e0c8933b4d96d4');
-const PLUGIN_APPLICATION    = _.get(process.env, 'PLUGIN_APPLICATION' , 'beerpal');
-const PLUGIN_NAMESPACE      = _.get(process.env, 'PLUGIN_NAMESPACE'   , 'dev');
-const PLUGIN_DEPLOYMENT     = _.get(process.env, 'PLUGIN_DEPLOYMENT'  , 'hello-world');
-const PLUGIN_IMAGE          = _.get(process.env, 'PLUGIN_IMAGE'       , 'hello-world');
+const PLUGIN_API_TOKEN      = _.get(process.env, 'PLUGIN_API_TOKEN'   , '');
+const PLUGIN_APPLICATION    = _.get(process.env, 'PLUGIN_APPLICATION' , '');
+const PLUGIN_NAMESPACE      = _.get(process.env, 'PLUGIN_NAMESPACE'   , '');
+const PLUGIN_DEPLOYMENT     = _.get(process.env, 'PLUGIN_DEPLOYMENT'  , '');
+const PLUGIN_IMAGE          = _.get(process.env, 'PLUGIN_IMAGE'       , '');
 const PLUGIN_PORT_BINDINGS  = _.get(process.env, 'PORT_BINDINGS'      , '');
 
 interface PluginParameters {

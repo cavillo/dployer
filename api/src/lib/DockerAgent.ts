@@ -5,6 +5,7 @@ import dockerode, {
 import * as _ from 'lodash';
 import stream from 'stream';
 import Logger from '../utils/Logger';
+import { ContainerStats } from '../model';
 import { application } from 'express';
 
 export const BASE_LABEL = 'io.dployer';
@@ -22,6 +23,7 @@ export interface DFilters {
   namespaces?: string[];
   deployments?: string[];
 }
+
 export default class DockerAgent {
   private docker: dockerode;
 
@@ -294,7 +296,7 @@ export default class DockerAgent {
     }
   }
 
-  async getContainerStats(id: string) {
+  async getContainerStats(id: string): Promise<ContainerStats> {
     try {
 
       // Getting conflicting containers
@@ -306,17 +308,35 @@ export default class DockerAgent {
       if (_.isEmpty(containersInfo)) {
         throw Error('No container found');
       }
+
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
-      try {
-        const stats = await container.stats();
-        // Logger.log(JSON.stringify(stats));
-        console.log(stats);
-        // return JSON.stringify(stats);
-      } catch (error) {
-        Logger.error(error.message);
+      const stats = await container.stats({ stream: false });
+
+      const memoryUsage = _.get(stats, 'memory_stats.usage', 0);
+      const memoryLimit = _.get(stats, 'memory_stats.limit', 0);
+      let memoryPct   = _.divide(memoryUsage, memoryLimit).toFixed(2);
+      if (memoryPct === '0.00') {
+        memoryPct = '0.01%';
+      } else {
+        memoryPct = `${memoryPct}%`;
       }
 
-      // return await this.getContainers({ id: container.id });
+      const currentPids = _.get(stats, 'pids_stats.current', 0);
+      let cpuCurrentUsage = this.calculateCPUPercentUnix(stats);
+      cpuCurrentUsage = `${cpuCurrentUsage}%`;
+
+      const retval: ContainerStats = {
+        stats,
+        formattedStats: {
+          cpuCurrentUsage,
+          memoryPct,
+          currentPids,
+          memoryUsage: this.formatBytes(memoryUsage),
+          memoryLimit: this.formatBytes(memoryLimit),
+        }
+      };
+
+      return retval;
     } catch (error) {
       Logger.error(error);
       throw error;
@@ -375,5 +395,31 @@ export default class DockerAgent {
       Logger.error(error);
       throw error;
     }
+  }
+
+  private formatBytes(bytesData: string, decimals = 2) {
+    const bytes = _.isNumber(bytesData) ? bytesData : _.toNumber(bytesData);
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return `${(bytes / Math.pow(k, i)).toFixed(dm)} ${sizes[i]}`;
+  }
+
+  private calculateCPUPercentUnix = (stats: any) => {
+    let cpuPercent = 0.0;
+    const cpuDelta = _.get(stats, 'cpu_stats.cpu_usage.total_usage', 0) - _.get(stats, 'precpu_stats.cpu_usage.total_usage', 0);
+    const systemDelta = _.get(stats, 'cpu_stats.system_cpu_usage', 0) - _.get(stats, 'precpu_stats.system_cpu_usage', 0);
+    const nCPU = _.get(stats, 'cpu_stats.online_cpus', 1);
+
+    if (systemDelta > 0 && cpuDelta > 0) {
+      cpuPercent = ((cpuDelta / systemDelta) * nCPU) * 100;
+    }
+
+    return cpuPercent.toFixed(2);
   }
 }

@@ -22,8 +22,6 @@ export default class RouteHandlerContainersStatsGet extends Route {
 
       const stats: any = await this.resources.agent.getContainerStats(id);
 
-      // const stats: any = {};
-
       res.json({ stats });
     } catch (ex) {
       return this.detectKnownErrors(ex, res);
