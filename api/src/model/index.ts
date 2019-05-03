@@ -1,3 +1,3 @@
 export { Application, ApplicationDB } from './Application';
-export { Container, ContainerDB } from './Container';
+export { Container, ContainerDB, ContainerStats } from './Container';
 export { Authentication, AuthenticationDB } from './Authentication';

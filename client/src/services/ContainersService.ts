@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import ClientUserBase from '../lib/ClientUser';
 import ServiceBase from './ServiceBase';
-import { Container } from '../model/Container';
+import { Container, ContainerStats } from '../model/Container';
 
 export default class ContainersService extends ServiceBase {
   constructor(clientUser: ClientUserBase) {
@@ -75,6 +75,19 @@ export default class ContainersService extends ServiceBase {
     try {
       const response = await this.api.get(`/containers/${id}/logs`);
       const retval: string[] = _.get(response, 'logs', []);
+      return retval;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async stats(id: string): Promise<ContainerStats> {
+    try {
+      const response = await this.api.get(`/containers/${id}/stats`);
+      const retval: ContainerStats = _.get(response, 'stats', null);
+
+      if (_.isNil(retval)) throw new Error('No stats');
+
       return retval;
     } catch (err) {
       throw err;

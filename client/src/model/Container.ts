@@ -27,3 +27,14 @@ export interface ContainerDB {
   st          : string;
   ca          : number;
 }
+
+export interface ContainerStats {
+  formattedStats: {
+    cpuCurrentUsage: string;
+    memoryUsage: string;
+    memoryLimit: string;
+    memoryPct: string;
+    currentPids: string;
+  };
+  stats: any;
+}
