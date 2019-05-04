@@ -41,15 +41,12 @@ export default class RouteHandlerHealthGet extends Route {
         deployments:  [deployment],
       };
 
-      let dockerContainers = await this.resources.agent.runContainer(image, cmd, filters);
-      dockerContainers = dockerContainers || [];
-      const container: Container = _.get(dockerContainers.map(this.resources.services.container.castFromDockerContainer), '[0]', null);
+      const response = await this.resources.agent.runContainer(image, cmd, filters);
+      const container: Container = this.resources.services.container.castFromDockerContainer(response);
 
-      if (container) {
-        res.json({ container });
-      } else {
-        res.json({ container: null });
-      }
+      this.resources.logger.log(JSON.stringify(container));
+
+      res.json({ container });
     } catch (ex) {
       return this.detectKnownErrors(ex, res);
     }

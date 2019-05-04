@@ -6,7 +6,6 @@ import * as _ from 'lodash';
 import stream from 'stream';
 import Logger from '../utils/Logger';
 import { ContainerStats } from '../model';
-import { application } from 'express';
 
 export const BASE_LABEL = 'io.dployer';
 
@@ -36,7 +35,7 @@ export default class DockerAgent {
     });
   }
 
-  async getContainers(args: DFilters = {}) {
+  async getContainers(args: DFilters = {}): Promise<ContainerInfo[]> {
     try {
       let labels = [
         `${BASE_LABEL}=${BASE_LABEL}`,
@@ -66,16 +65,16 @@ export default class DockerAgent {
         filters.name = [args.name];
       }
 
-      const data: ContainerInfo[] = await this.docker.listContainers({
+      const containers: ContainerInfo[] = await this.docker.listContainers({
         filters,
         all: true,
         limit: 10,
         size: true,
       });
-
-      return data;
+      return containers || [];
     } catch (error) {
       Logger.error(error);
+      return [];
     }
   }
 
@@ -124,122 +123,170 @@ export default class DockerAgent {
   }
 
   async pullImage(image: string) {
+    const logStream = new stream.PassThrough();
+    const streamLogs = await this.docker.pull(image, {});
+
     return new Promise((resolve, reject) => {
-      this.docker.pull(image, (err: any, stream: stream) => {
-        if (err) reject();
-        const onFinished = (err: Error, output: any) => {
+      try {
+        this.docker.modem.demuxStream(streamLogs, logStream, logStream);
+        streamLogs.on('error', (err: any) => {
+          Logger.error('pullImage', err);
+          logStream.destroy();
+          reject(err);
+        });
+
+        streamLogs.on('end', () => {
+          Logger.log('pullImage', 'ended....');
+          logStream.destroy();
           resolve();
-        };
-        const onProgress = (event: any) => {
-          // Logger.log(`${_.get(event, 'status', '')} ${_.get(event, 'progress', '')}`);
-        };
-        this.docker.modem.followProgress(stream, onFinished, onProgress);
-      });
+        });
+
+        logStream.on('data', (chunk: any) => {
+          Logger.log('pullImage', chunk.toString('utf8'));
+        });
+
+        // setTimeout(
+        //   () => {
+        //     logStream.destroy();
+        //     resolve(logs);
+        //   },
+        //   2000,
+        // );
+      } catch (error) {
+        Logger.error('pullImage', error);
+        logStream.destroy();
+        reject(error);
+      }
     });
   }
 
   async runContainer(image: string, cmd: string[], args: DFilters = {}) {
+    // validating image
+    if (!image) {
+      throw new Error('No image provided...');
+    }
+    if (!_.isString(image)) {
+      throw new Error('Invalid image...');
+    }
+    // Pulling the immage
     try {
-
       await this.pullImage(image);
+    } catch (error) {
+      console.log(error.toString());
+      throw new Error('Error pulling image...');
+    }
 
-      const createOptions: any = {
-        Image: image,
-        Cmd: cmd ? cmd : [],
-        AttachStdin: false,
-        AttachStdout: false,
-        AttachStderr: false,
-        Tty: false,
-        OpenStdin: false,
-        StdinOnce: false,
-        Labels: {
+    // Docker API create container options
+    const createOptions: any = {
+      Image: image,
+      Cmd: cmd ? cmd : [],
+      AttachStdin: false,
+      AttachStdout: false,
+      AttachStderr: false,
+      Tty: false,
+      OpenStdin: false,
+      StdinOnce: false,
+      Labels: {
+      },
+      HostConfig: {
+        PortBindings: {},
+      },
+    };
+    // - Adding "Made in Dployer" label ;)
+    // - Here we could add another label for
+    //   separating multiple instances of dployer
+    createOptions.Labels[`${BASE_LABEL}`] = BASE_LABEL;
+
+    // Building args
+    let defaultName = BASE_LABEL;
+    if (args.applications && _.isArray(args.applications)) {
+      defaultName = `${defaultName}-${args.applications[0]}`;
+      createOptions.Labels[`${BASE_LABEL}.application`] = args.applications[0];
+    } else {
+      throw new Error('Missing application...');
+    }
+    if (args.namespaces && _.isArray(args.namespaces)) {
+      defaultName = `${defaultName}-${args.namespaces[0]}`;
+      createOptions.Labels[`${BASE_LABEL}.namespace`] = args.namespaces[0];
+    } else {
+      throw new Error('Missing namespace...');
+    }
+    if (args.deployments && _.isArray(args.deployments)) {
+      defaultName = `${defaultName}-${args.deployments[0]}`;
+      createOptions.Labels[`${BASE_LABEL}.deployment`] = args.deployments[0];
+    } else {
+      throw new Error('Missing deployment...');
+    }
+    if (args.name && _.isString(args.name)) {
+      createOptions.name = args.name;
+    } else {
+      createOptions.name = defaultName;
+    }
+
+    // WIP
+    // Port bindings come in the following format
+    // []
+    // and they are converted into this.
+    // [{'7002': ['127.0.0.1',7002']}]
+    if (args.portBindings && _.isArray(args.portBindings)) {
+      createOptions.HostConfig.PortBindings = args.portBindings.reduce(
+        (obj: any, portBinding: any[]) => {
+          const port: string = Object.keys(portBinding)[0];
+          const hostBinding: string[] = Object.values(portBinding)[0];
+          obj[port] = [
+            {
+              HostIp: hostBinding[0],
+              HostPort: hostBinding[1],
+            },
+          ];
+          return obj;
         },
-        HostConfig: {
-          PortBindings: {},
-        },
-      };
-      createOptions.Labels[`${BASE_LABEL}`] = BASE_LABEL;
+        {},
+      );
+    }
 
-      let defaultName = 'dployer';
+    // Getting conflicting containers
+    const filters: any = {
+      applications: args.applications,
+      namespaces: args.namespaces,
+      deployments: args.deployments,
+      name: createOptions.name,
+    };
+    const containers: ContainerInfo[] = await this.getContainers(filters) || [];
 
-      if (args.applications && _.isArray(args.applications)) {
-        defaultName = `${defaultName}-${args.applications[0]}`;
-        createOptions.Labels[`${BASE_LABEL}.application`] = args.applications[0];
+    // removing conflicting containers
+    for (const containerInfo of containers) {
+      Logger.log('Stopping existing container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
+      const container = await this.docker.getContainer(containerInfo.Id);
+      try {
+        await container.stop();
+        Logger.ok('Stopped...');
+      } catch (error) {
+        Logger.error(error.message);
       }
 
-      if (args.namespaces && _.isArray(args.namespaces)) {
-        defaultName = `${defaultName}-${args.namespaces[0]}`;
-        createOptions.Labels[`${BASE_LABEL}.namespace`] = args.namespaces[0];
+      Logger.log('Removing existing container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
+      try {
+        await container.remove();
+        Logger.ok('Removed...');
+      } catch (error) {
+        Logger.error(error.message);
       }
+    }
 
-      if (args.deployments && _.isArray(args.deployments)) {
-        defaultName = `${defaultName}-${args.deployments[0]}`;
-        createOptions.Labels[`${BASE_LABEL}.deployment`] = args.deployments[0];
-      }
-
-      if (args.name && _.isString(args.name)) {
-        createOptions.name = args.name;
-      } else {
-        createOptions.name = defaultName;
-      }
-
-      // [{'7002': ['127.0.0.1',7002']}]
-      if (args.portBindings && _.isArray(args.portBindings)) {
-        createOptions.HostConfig.PortBindings = args.portBindings.reduce(
-          (obj: any, portBinding: any[]) => {
-            const port: string = Object.keys(portBinding)[0];
-            const hostBinding: string[] = Object.values(portBinding)[0];
-            obj[port] = [
-              {
-                HostIp: hostBinding[0],
-                HostPort: hostBinding[1],
-              },
-            ];
-            return obj;
-          },
-          {},
-        );
-      }
-
-      // Getting conflicting containers
-      const filters: any = {
-        applications: args.applications,
-        namespaces: args.namespaces,
-        deployments: args.deployments,
-        name: createOptions.name,
-      };
-      const containers: ContainerInfo[] = await this.getContainers(filters) || [];
-
-      // removing conflicting containers
-      for (const containerInfo of containers) {
-        // Logger.log('Stopping existing container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
-        const container = await this.docker.getContainer(containerInfo.Id);
-        try {
-          await container.stop();
-          Logger.ok('Stopped...');
-        } catch (error) {
-          Logger.error(error.message);
-        }
-
-        // Logger.log('Removing existing container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
-        try {
-          await container.remove();
-          // Logger.ok('Removed...');
-        } catch (error) {
-          Logger.error(error.message);
-        }
-      }
-
-      // creating container
+    // creating container
+    try {
       let container: Container = await this.docker.createContainer(createOptions);
 
       container = await container.start();
-
-      return await this.getContainers({ id: container.id });
+      const retval = await this.getContainers({ id: container.id });
+      if (!retval[0]) throw new Error('Error running contiaer');
+      return retval[0];
     } catch (error) {
-      Logger.error(error);
-      throw error;
+      Logger.error(error.message);
+      throw new Error(error);
     }
+
   }
 
   async stopContainer(id: string) {
@@ -255,16 +302,15 @@ export default class DockerAgent {
         throw Error('No container found');
       }
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
-      try {
-        await container.stop();
-        Logger.ok('Stopped...');
-      } catch (error) {
-        Logger.error(error.message);
-      }
+      await container.stop();
+      Logger.ok('Stopped...');
 
       return await this.getContainers({ id: container.id });
     } catch (error) {
-      Logger.error(error);
+      if (error.reason === 'container already stopped') {
+        return await this.getContainers({ id });
+      }
+      Logger.error(JSON.stringify(error));
       throw error;
     }
   }
