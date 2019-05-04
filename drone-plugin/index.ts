@@ -8,10 +8,10 @@ configureEnvironmentVariables();
 const PLUGIN_API_HOST       = _.get(process.env, 'PLUGIN_API_HOST'    , 'localhost');
 const PLUGIN_API_PORT       = _.get(process.env, 'PLUGIN_API_PORT'    , '8002');
 const PLUGIN_API_TOKEN      = _.get(process.env, 'PLUGIN_API_TOKEN'   , '');
-const PLUGIN_APPLICATION    = _.get(process.env, 'PLUGIN_APPLICATION' , '');
-const PLUGIN_NAMESPACE      = _.get(process.env, 'PLUGIN_NAMESPACE'   , '');
-const PLUGIN_DEPLOYMENT     = _.get(process.env, 'PLUGIN_DEPLOYMENT'  , '');
-const PLUGIN_IMAGE          = _.get(process.env, 'PLUGIN_IMAGE'       , '');
+const PLUGIN_APPLICATION    = _.get(process.env, 'PLUGIN_APPLICATION' , 'my-cool-app');
+const PLUGIN_NAMESPACE      = _.get(process.env, 'PLUGIN_NAMESPACE'   , 'production');
+const PLUGIN_DEPLOYMENT     = _.get(process.env, 'PLUGIN_DEPLOYMENT'  , 'greetings');
+const PLUGIN_IMAGE          = _.get(process.env, 'PLUGIN_IMAGE'       , 'hello-world');
 const PLUGIN_PORT_BINDINGS  = _.get(process.env, 'PORT_BINDINGS'      , '');
 
 interface PluginParameters {
@@ -150,10 +150,10 @@ const plugin = new DployerDronePlugin();
 plugin
   .run()
   .then(
-    (data) => {
+    (response) => {
       console.log(
-        'Successfully finish',
-        JSON.stringify(data),
+        `Response ${response.status} ${response.statusText}`,
+        response.data,
       );
       process.exit(0);
     })
@@ -174,7 +174,7 @@ plugin
         // http.ClientRequest in node.js
         console.log(
           'Error on request',
-          error.request,
+          error.message,
         );
       } else {
         // Something happened in setting up the request that triggered an Error
