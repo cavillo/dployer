@@ -91,7 +91,7 @@ export default class API {
           this.app.delete(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
           break;
       }
-      this.logger.muted(_.upperCase(method), routeInstance.url);
+      this.logger.log(_.upperCase(method), routeInstance.url);
     }
   }
 

@@ -19,13 +19,12 @@ export default class MongoDB {
   public async init() {
     try {
       const mongoOpts: mongodb.MongoClientOptions = {
-        // auth: {
-        //   user: this.conf.auth.user,
-        //   password: this.conf.auth.password,
-        // },
+        auth: this.conf.auth,
+        // authSource: 'admin',
+        keepAlive: true,
         useNewUrlParser: true,
       };
-      const url = `${this.conf.url}:${this.conf.port}/${this.conf.dbName}`;
+      const url = `${this.conf.url}:${this.conf.port}`;
 
       this.client = await mongodb.MongoClient.connect(url, mongoOpts);
       this.db = this.client.db(this.conf.dbName);
@@ -52,12 +51,17 @@ export default class MongoDB {
     return this.getClientInstance();
   }
 
-  public async findDocumentsById(collection: string, id: string | number): Promise<any | null> {
+  public async isConnected() {
+    const client: mongodb.MongoClient = await this.getClientInstance();
+    return client.isConnected();
+  }
+
+  public async findDocumentById(collection: string, id: string | number): Promise<any | null> {
     const db: mongodb.Db = await this.getDBInstance();
 
     const coll = db.collection(collection);
     // Find some documents
-    const docs = await coll.find({ id }).toArray();
+    const docs = await coll.find({ _id: id }).toArray();
 
     return _.get(docs, '[0]', null);
   }
