@@ -5,7 +5,7 @@ import {
   RouteResources,
 } from '../../API';
 
-export default class RouteImpl extends Route{
+export default class RouteImpl extends Route {
   public url: string;
 
   constructor(resources: RouteResources) {

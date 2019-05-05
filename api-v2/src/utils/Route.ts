@@ -5,10 +5,12 @@ import * as _ from 'lodash';
 import { Configuration } from '../conf';
 import Logger from './Logger';
 import KnownErrors from './KnownErrors';
+import MongoDB from '../services/MongoDB';
 
 export interface RouteResources {
   conf: Configuration;
   logger: Logger;
+  mongo: MongoDB;
 }
 
 export default abstract class Route {

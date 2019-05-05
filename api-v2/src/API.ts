@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 import { Configuration } from './conf';
 import Logger from './utils/Logger';
 import Route, { RouteResources } from './utils/Route';
+import MongoDB from './services/MongoDB';
 
 export {
   Request,
@@ -26,11 +27,13 @@ export default class API {
   private app: Express;
   private conf: Configuration;
   private logger: Logger;
+  private mongo: MongoDB;
 
   constructor(conf: Configuration, logger: Logger) {
     this.app = express();
     this.conf = conf;
     this.logger = logger;
+    this.mongo = new MongoDB(conf.mongo, this.logger);
   }
 
   private async config() {
@@ -40,6 +43,8 @@ export default class API {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     // support cors
     this.app.use(cors());
+
+    await this.mongo.init();
   }
 
   private async loadRoutes() {
@@ -48,6 +53,7 @@ export default class API {
     const resources: RouteResources = {
       conf: this.conf,
       logger: this.logger,
+      mongo: this.mongo,
     };
 
     const routeFiles = glob.sync('./routes/**/*.route.ts', { cwd: __dirname });
@@ -71,8 +77,6 @@ export default class API {
       const routeClass = require(routeFile).default;
       const routeInstance: Route = new routeClass(resources);
 
-      // routeInstance.callback();
-
       switch (method) {
         case 'get':
           this.app.get(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
@@ -87,13 +91,14 @@ export default class API {
           this.app.delete(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
           break;
       }
+      this.logger.muted(_.upperCase(method), routeInstance.url);
     }
   }
 
   private async listen() {
     this.app.listen(
       this.conf.port,
-      () => this.logger.ok(`Example app listening on port ${this.conf.port}!`),
+      () => this.logger.ok(`${this.conf.environment}.${this.conf.service} listening on port ${this.conf.port}!`),
     );
   }
 

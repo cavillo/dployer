@@ -1,10 +1,11 @@
 import chalk from 'chalk';
+import moment from 'moment';
 
 export default class Logger {
   protected prefix: string;
 
   constructor(prefix: string = 'dployer-api') {
-    this.prefix = `[${prefix}]:`;
+    this.prefix = `[${moment().format('MMMM Do YYYY, HH:mm:ss:SSS')}][${prefix}]:`;
   }
 
   public log(...args: any) {
@@ -27,6 +28,12 @@ export default class Logger {
   public warn(...args: any) {
     // print yellow
     console.log(chalk.yellow(this.prefix), ...args);
+
+  }
+
+  public muted(...args: any) {
+    // print gray
+    console.log(chalk.gray(this.prefix), ...args);
 
   }
 }
