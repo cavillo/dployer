@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
+import * as _ from 'lodash';
 
 // internal dependencies
 import { Configuration } from '../conf';
 import Logger from './Logger';
+import KnownErrors from './KnownErrors';
 
 export interface RouteResources {
   conf: Configuration;
@@ -19,7 +21,15 @@ export default abstract class Route {
     this.url = '';
   }
 
-  public abstract async callback(req: Request, res: Response): Promise<any>;
+  public async routeCallback(req: Request, res: Response): Promise<any> {
+    try {
+      return await this.callback(req, res);
+    } catch (error) {
+      await this.detectKnownErrors(error, res);
+    }
+  }
+
+  protected abstract async callback(req: Request, res: Response): Promise<any>;
 
   protected async requireAuthentication(req: Request) {
     // Requiring token in Authorization header in the format
@@ -38,6 +48,21 @@ export default abstract class Route {
     }
 
     const token = authSplit[1];
+    return;
+  }
+
+  private async detectKnownErrors(thrownError: Error, httpResponse: any) {
+    let message = _.get(thrownError, 'message', 'Unknown error');
+    let statusCode = _.get(thrownError, 'statusCode', 500);
+
+    const error = KnownErrors.lookupError(thrownError);
+    if (error) {
+      message = error.message;
+      statusCode = error.code;
+    }
+
+    this.resources.logger.error(statusCode, message, JSON.stringify(thrownError));
+    httpResponse.status(statusCode).send(message);
     return;
   }
 }

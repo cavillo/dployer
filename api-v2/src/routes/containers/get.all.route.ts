@@ -15,6 +15,8 @@ export default class RouteImpl extends Route {
 
   public async callback(req: Request, res: Response): Promise<any> {
     this.resources.logger.warn('Container endpoint ok!');
+
+    await this.requireAuthentication(req);
     res.send('Container endpoint ok!');
   }
 }

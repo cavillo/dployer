@@ -70,16 +70,16 @@ export default class API {
 
       switch (method) {
         case 'get':
-          this.app.get(routeInstance.url, routeInstance.callback.bind(routeInstance));
+          this.app.get(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
           break;
         case 'post':
-          this.app.post(routeInstance.url, routeInstance.callback.bind(routeInstance));
+          this.app.post(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
           break;
         case 'put':
-          this.app.put(routeInstance.url, routeInstance.callback.bind(routeInstance));
+          this.app.put(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
           break;
         case 'delete':
-          this.app.delete(routeInstance.url, routeInstance.callback.bind(routeInstance));
+          this.app.delete(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
           break;
       }
     }
