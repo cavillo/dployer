@@ -21,6 +21,11 @@ export default abstract class Route {
     this.url = '';
   }
 
+  /*
+  Parent method that wraps the logic implementation
+  callback method in a try catch for detecting errors
+  and responding with the right codes and messages.
+  */
   public async routeCallback(req: Request, res: Response): Promise<any> {
     try {
       return await this.callback(req, res);
@@ -29,11 +34,18 @@ export default abstract class Route {
     }
   }
 
+  /*
+  Method to implement when adding an endpoint.
+  Each RouteImpl should place the logic of the
+  ExpressJS callback methods in here. The handling
+  of errors and checking for authentication token,
+  has benn abstracted to the Route base class.
+  */
   protected abstract async callback(req: Request, res: Response): Promise<any>;
 
   protected async requireAuthentication(req: Request) {
     // Requiring token in Authorization header in the format
-    // Bearer #accessToken#
+    // Authorization: Bearer #accessToken#
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       throw Error('No authorization header provided');
@@ -47,11 +59,11 @@ export default abstract class Route {
       throw Error('\'Bearer\' keyword missing from front of authorization header');
     }
 
-    const token = authSplit[1];
+    const accessToken = authSplit[1];
     return;
   }
 
-  private async detectKnownErrors(thrownError: Error, httpResponse: any) {
+  protected async detectKnownErrors(thrownError: Error, httpResponse: any) {
     let message = _.get(thrownError, 'message', 'Unknown error');
     let statusCode = _.get(thrownError, 'statusCode', 500);
 

@@ -17,6 +17,11 @@ export {
   RouteResources,
 };
 
+/*
+Class in charge of building an ExpressJS API.
+All endpoints should be placed in the ./routes directory
+and API will go one by one dynamically adding each route.
+*/
 export default class API {
   private app: Express;
   private conf: Configuration;
