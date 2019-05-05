@@ -1,7 +1,7 @@
 import {
-  Route,
   Request,
   Response,
+  Route,
   RouteResources,
 } from '../../API';
 
