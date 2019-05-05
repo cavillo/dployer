@@ -11,7 +11,8 @@ export interface Configuration {
     port: number;
     host: string;
   };
-};
+  mongo_uri: string;
+}
 
 const conf: Configuration = {
   environment: _.get(process.env, 'ENVIRONMENT', 'local'),
@@ -21,5 +22,6 @@ const conf: Configuration = {
     port: _.toNumber(_.get(process.env, 'REDIS_PORT', 6379)),
     host: _.get(process.env, 'REDIS_HOST', 'localhost'),
   },
+  mongo_uri: _.get(process.env, 'MONGO_URI', 'mongodb://localhost/dployer'),
 };
 export default conf;

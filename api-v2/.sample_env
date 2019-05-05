@@ -1,3 +1,4 @@
 ENVIRONMENT='local'
 SERVICE='dployer-api'
 PORT='8002'
+MONGO_URI = 'mongodb://localhost/dployer'
