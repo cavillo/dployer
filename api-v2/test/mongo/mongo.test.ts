@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import * as _ from 'lodash';
+import { expect } from 'chai';
 import MongoDB from '../../src/services/MongoDB';
 import conf from '../../src/conf';
 import Logger from '../../src/utils/Logger';
@@ -9,7 +10,7 @@ let logger: Logger;
 const collectionName: string = 'tests';
 
 before(async () => {
-  logger = new Logger('MongoDB Tests');
+  logger = new Logger('Connectiong to MongoDB...');
   const testConf = {
     ...conf.mongo,
     dbName: 'test',
@@ -17,12 +18,14 @@ before(async () => {
   mongo = new MongoDB(testConf, logger);
   await mongo.init();
   await mongo.deleteDocuments('tests', {});
+  return;
 });
 
 describe('MongoDB Client...', async () => {
   it('Is connected', async () => {
     const connected = await mongo.isConnected();
     assert.ok(connected);
+    return;
   });
 
   it('InsertDocument, InsertDocuments, Find & FindAll', async () => {
@@ -34,27 +37,38 @@ describe('MongoDB Client...', async () => {
     };
     const data1 = await mongo.insertDocument(collectionName, test1);
     const data2 = await mongo.insertDocument(collectionName, test2);
-    const id1 = _.get(data1, '_id');
-    const id2 = _.get(data2, '_id');
-    logger.log('id1 =>', id1);
-    logger.log('id2 =>', id2);
 
-    assert.ok(_.has(data1, '_id'));
-    assert.equal(_.get(data1, 'name'), test1.name);
-    assert.ok(_.has(data2, '_id'));
-    assert.equal(_.get(data2, 'name'), test2.name);
+    expect(data1)
+      .to.have.property('_id');
+    expect(data2)
+      .to.have.property('_id');
 
-    let data = await mongo.findDocumentById(collectionName, id1);
-    const id = _.get(data, '_id');
-    logger.log('id =>', id);
-    logger.log('id =>', JSON.stringify(id));
-    logger.log('id =>', JSON.stringify(id1));
-    assert.ok(_.has(data, '_id'));
-    // assert.equal(id, id1);
+    expect(data1)
+      .to.have.property('name')
+      .that.equals(test1.name);
+    expect(data2)
+      .to.have.property('name')
+      .that.equals(test2.name);
 
-    // data = await mongo.findDocumentById(collectionName, data2._id);
-    // assert.ok(_.has(data, '_id'));
-    // assert.equal(_.get(data, '_id'), _.get(data2, '_id'));
+    const data = await mongo.findDocumentById(collectionName, data1._id);
 
+    expect(data)
+      .to.have.property('name')
+      .that.equals(test1.name);
+
+    expect(data)
+      .to.have.property('_id')
+      .that.equals(data1._id);
+
+    const allData = await mongo.findAllDocuments(collectionName);
+
+    expect(allData.length)
+      .to.be.equals(2);
+  });
+
+  after(async () => {
+    logger = new Logger('Closing MongoDB connection...');
+    await mongo.close();
+    return;
   });
 });

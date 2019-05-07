@@ -1,4 +1,4 @@
-import mongodb from 'mongodb';
+import mongodb, { ObjectID } from 'mongodb';
 import * as _ from 'lodash';
 
 import { MongoConfiguration } from '../conf';
@@ -8,12 +8,16 @@ export default class MongoDB {
   private logger: Logger;
   private conf: MongoConfiguration;
 
+  private safeData: boolean;
+
   private client?: mongodb.MongoClient;
   private db?: mongodb.Db;
 
   constructor(conf: MongoConfiguration, logger: Logger) {
     this.logger = logger;
     this.conf = conf;
+
+    this.safeData = true;
   }
 
   public async init() {
@@ -33,6 +37,10 @@ export default class MongoDB {
     } catch (error) {
       this.logger.error('MongoDB connection fail: ', error.message);
     }
+  }
+
+  public async close() {
+    return this.client && await this.client.close();
   }
 
   private async getDBInstance(): Promise<mongodb.Db> {
@@ -61,9 +69,8 @@ export default class MongoDB {
 
     const coll = db.collection(collection);
     // Find some documents
-    const docs = await coll.find({ _id: id }).toArray();
-
-    return _.get(docs, '[0]', null);
+    const doc = await coll.findOne({ _id: new ObjectID(id) });
+    return this.transsformData(doc);
   }
 
   public async findAllDocuments(collection: string): Promise<any[]> {
@@ -73,7 +80,7 @@ export default class MongoDB {
     // Find some documents
     const docs = await coll.find({}).toArray();
 
-    return docs || [];
+    return this.transsformData(docs || []);
   }
 
   public async findAllDocumentsByQuery(collection: string, query: any): Promise<any[]> {
@@ -83,7 +90,7 @@ export default class MongoDB {
     // Find some documents
     const docs = await coll.find(query).toArray();
 
-    return docs || [];
+    return this.transsformData(docs || []);
   }
 
   public async updateDocument(collection: string, query: any, data: any): Promise<any[]> {
@@ -103,7 +110,7 @@ export default class MongoDB {
 
     const result = await coll.insertOne(data);
 
-    return result.ops[0];
+    return this.transsformData(result.ops[0]);
   }
 
   public async insertDocuments(collection: string, data: any[]) {
@@ -113,7 +120,7 @@ export default class MongoDB {
 
     const result = await coll.insertMany(data);
 
-    return result.ops;
+    return this.transsformData(result.ops);
   }
 
   public async deleteDocument(collection: string, query: any): Promise<void> {
@@ -134,5 +141,12 @@ export default class MongoDB {
     await coll.deleteMany(query);
 
     return;
+  }
+
+  private transsformData(data: any) {
+    if (this.safeData) {
+      return JSON.parse(JSON.stringify(data));
+    }
+    return data;
   }
 }
