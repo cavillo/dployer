@@ -14,7 +14,6 @@ export default class RouteImpl extends Route {
   }
 
   public async callback(req: Request, res: Response): Promise<any> {
-    this.resources.logger.error('Health endpoint ok!');
-    res.send('Health endpoint ok!');
+    res.status(200).send('Im ok!');
   }
 }

@@ -143,6 +143,12 @@ export default class MongoDB {
     return;
   }
 
+  public async dropCollection(collection: string,) {
+    const db: mongodb.Db = await this.getDBInstance();
+
+    await db.collection(collection).drop();
+  }
+
   private transsformData(data: any) {
     if (this.safeData) {
       return JSON.parse(JSON.stringify(data));

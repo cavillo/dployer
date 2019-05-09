@@ -10,6 +10,8 @@ import { Configuration } from './conf';
 import Logger from './utils/Logger';
 import Route, { RouteResources } from './utils/Route';
 import MongoDB from './services/MongoDB';
+import Docker from './services/Docker';
+import Services from './services';
 
 export {
   Request,
@@ -28,12 +30,16 @@ export default class API {
   private conf: Configuration;
   private logger: Logger;
   private mongo: MongoDB;
+  private docker: Docker;
+  private services: Services;
 
   constructor(conf: Configuration, logger: Logger) {
     this.app = express();
     this.conf = conf;
     this.logger = logger;
     this.mongo = new MongoDB(conf.mongo, this.logger);
+    this.docker = new Docker(this.logger);
+    this.services = new Services(this.docker);
   }
 
   private async config() {
@@ -54,6 +60,8 @@ export default class API {
       conf: this.conf,
       logger: this.logger,
       mongo: this.mongo,
+      docker: this.docker,
+      services: this.services,
     };
 
     const routeFiles = glob.sync('./routes/**/*.route.ts', { cwd: __dirname });

@@ -6,11 +6,15 @@ import { Configuration } from '../conf';
 import Logger from './Logger';
 import KnownErrors from './KnownErrors';
 import MongoDB from '../services/MongoDB';
+import Docker from '../services/Docker';
+import Services from '../services';
 
 export interface RouteResources {
   conf: Configuration;
   logger: Logger;
   mongo: MongoDB;
+  docker: Docker;
+  services: Services;
 }
 
 export default abstract class Route {

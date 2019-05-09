@@ -68,6 +68,7 @@ describe('MongoDB Client...', async () => {
 
   after(async () => {
     logger = new Logger('Closing MongoDB connection...');
+    await mongo.dropCollection(collectionName);
     await mongo.close();
     return;
   });
