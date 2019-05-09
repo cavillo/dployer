@@ -80,11 +80,25 @@ export default class ContainerService {
     } as IContainer;
   }
 
+  async logs(id: string, tail: number = 100): Promise<string[]> {
+    try {
+      return await this.docker.getContainerLogs(id, tail);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async stats(id: string): Promise<IContainerStats> {
+    return await this.docker.getContainerStats(id);
+  }
+
   async getById(id: string): Promise<IContainer | null> {
-    let dockerContainers: ContainerInfo[] | undefined = await this.docker.getContainers({ id });
-    dockerContainers = dockerContainers || [];
-    const container: IContainer | null = _.get(dockerContainers.map(this.castFromDockerContainer), '[0]', null);
-    return container;
+    try {
+      const dockerContainer: ContainerInfo = await this.docker.getContainerById(id);
+      return this.castFromDockerContainer(dockerContainer);
+    } catch (error) {
+      return null;
+    }
   }
 
   async getAll(): Promise<IContainer[]> {
@@ -103,39 +117,46 @@ export default class ContainerService {
 
   async run(image: string, cmd: string[], filters: IFilters): Promise<IContainer> {
     const response = await this.docker.runContainer(image, cmd, filters);
-    const container: IContainer = this.castFromDockerContainer(response);
-    return container;
+    return this.castFromDockerContainer(response);
   }
 
-  async stop(id: string): Promise<IContainer | null> {
-    let dockerContainers = await this.docker.stopContainer(id);
-    dockerContainers = dockerContainers || [];
-    const container: IContainer = _.get(dockerContainers.map(this.castFromDockerContainer), '[0]', null);
-    return container;
-
+  async create(image: string, cmd: string[], filters: IFilters): Promise<IContainer> {
+    const response = await this.docker.runContainer(image, cmd, filters);
+    return this.castFromDockerContainer(response);
   }
 
-  async kill(id: string): Promise<IContainer | null> {
-    let dockerContainers = await this.docker.killContainer(id);
-    dockerContainers = dockerContainers || [];
-    const container: IContainer = _.get(dockerContainers.map(this.castFromDockerContainer), '[0]', null);
-    return container;
-
+  async deploy(image: string, cmd: string[], filters: IFilters): Promise<IContainer> {
+    const response = await this.docker.runContainer(image, cmd, filters);
+    return this.castFromDockerContainer(response);
   }
 
-  async remove(id: string): Promise<IContainer | null> {
-    let dockerContainers = await this.docker.removeContainer(id);
-    dockerContainers = dockerContainers || [];
-    const container: IContainer = _.get(dockerContainers.map(this.castFromDockerContainer), '[0]', null);
-    return container;
+  async stop(id: string): Promise<IContainer> {
+    const dockerContainer = await this.docker.stopContainer(id);
+    return this.castFromDockerContainer(dockerContainer);
 
   }
 
-  async restart(id: string): Promise<IContainer | null> {
-    let dockerContainers = await this.docker.restartContainer(id);
-    dockerContainers = dockerContainers || [];
-    const container: IContainer = _.get(dockerContainers.map(this.castFromDockerContainer), '[0]', null);
-    return container;
+  async kill(id: string): Promise<IContainer> {
+    const dockerContainer = await this.docker.killContainer(id);
+    return this.castFromDockerContainer(dockerContainer);
+
+  }
+
+  async remove(id: string): Promise<IContainer> {
+    const dockerContainer = await this.docker.removeContainer(id);
+    return this.castFromDockerContainer(dockerContainer);
+
+  }
+
+  async restart(id: string): Promise<IContainer> {
+    const dockerContainer = await this.docker.restartContainer(id);
+    return this.castFromDockerContainer(dockerContainer);
+
+  }
+
+  async start(id: string): Promise<IContainer> {
+    const dockerContainer = await this.docker.startContainer(id);
+    return this.castFromDockerContainer(dockerContainer);
 
   }
 

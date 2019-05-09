@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import {
   Request,
   Response,

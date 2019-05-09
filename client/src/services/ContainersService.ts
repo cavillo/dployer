@@ -51,6 +51,16 @@ export default class ContainersService extends ServiceBase {
     }
   }
 
+  public async start(id: string): Promise<Container> {
+    try {
+      const response = await this.api.post(`/containers/${id}/start`, {});
+      const retval: Container = _.get(response, 'container');
+      return retval;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async kill(id: string): Promise<Container> {
     try {
       const response = await this.api.post(`/containers/${id}/kill`, {});

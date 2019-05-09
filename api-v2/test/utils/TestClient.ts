@@ -11,7 +11,7 @@ export default class TestClient {
     port: string = '8002',
     token?: string,
   ) {
-    this.baseURL = `http://${host}:${port}`;
+    this.baseURL = `http://${host}:${port}/api`;
     if (token) {
       this.token = token;
     }

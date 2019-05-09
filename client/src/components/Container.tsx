@@ -53,6 +53,13 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
     this.setState({ container, loading: false });
   }
 
+  startContainer = async (id: string) => {
+    await this.setState({ loading: true });
+    const container = await this.client.services.containers.start(id);
+
+    this.setState({ container, loading: false });
+  }
+
   killContainer = async (id: string) => {
     await this.setState({ loading: true });
     const container = await this.client.services.containers.kill(id);
@@ -126,6 +133,7 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
               {_.capitalize(_.get(container, 'state'))}
             </button>
             <div className="dropdown-menu">
+              <button className="dropdown-item" onClick={this.startContainer.bind(this, _.get(container, 'id'))}>Start</button>
               <button className="dropdown-item" onClick={this.restartContainer.bind(this, _.get(container, 'id'))}>Restart</button>
               <button className="dropdown-item" onClick={this.stopContainer.bind(this, _.get(container, 'id'))}>Stop</button>
               <button className="dropdown-item" onClick={this.killContainer.bind(this, _.get(container, 'id'))}>Kill</button>

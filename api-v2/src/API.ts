@@ -43,6 +43,8 @@ export default class API {
   }
 
   private async config() {
+    // Log entry route
+    this.app.use(this.logRoute.bind(this));
     // support application/json type post data
     this.app.use(bodyParser.json());
     // support application/x-www-form-urlencoded post data
@@ -85,28 +87,31 @@ export default class API {
       const routeClass = require(routeFile).default;
       const routeInstance: Route = new routeClass(resources);
 
+      const apiPrefix = '/api';
+      const routeURL = `${apiPrefix}${routeInstance.url}`;
+
       switch (method) {
         case 'get':
-          this.app.get(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
+          this.app.get(routeURL, routeInstance.routeCallback.bind(routeInstance));
           break;
         case 'post':
-          this.app.post(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
+          this.app.post(routeURL, routeInstance.routeCallback.bind(routeInstance));
           break;
         case 'put':
-          this.app.put(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
+          this.app.put(routeURL, routeInstance.routeCallback.bind(routeInstance));
           break;
         case 'delete':
-          this.app.delete(routeInstance.url, routeInstance.routeCallback.bind(routeInstance));
+          this.app.delete(routeURL, routeInstance.routeCallback.bind(routeInstance));
           break;
       }
-      this.logger.log(_.upperCase(method), routeInstance.url);
+      this.logger.log('  Loaded route: ', routeInstance.url);
     }
   }
 
   private async listen() {
     this.app.listen(
       this.conf.port,
-      () => this.logger.ok(`${this.conf.environment}.${this.conf.service} listening on port ${this.conf.port}!`),
+      () => this.logger.ok(`Ready and listening on port ${this.conf.port}!`),
     );
   }
 
@@ -115,4 +120,31 @@ export default class API {
     await this.loadRoutes();
     await this.listen();
   }
+
+  private logRoute = (req: Request, res: Response, next: NextFunction) => {
+    this.logger.log(`${req.method} ${req.originalUrl}`);
+
+    const cleanup = () => {
+      res.removeListener('finish', logFinish);
+    };
+
+    const logFinish = () => {
+      cleanup();
+
+      if (res.statusCode >= 500) {
+        this.logger.error(`${req.method} ${req.originalUrl} ${res.statusCode}`);
+      } else if (res.statusCode >= 400) {
+        this.logger.error(`${req.method} ${req.originalUrl} ${res.statusCode}`);
+      } else if (res.statusCode < 300 && res.statusCode >= 200) {
+        this.logger.log(`${req.method} ${req.originalUrl} ${res.statusCode}`);
+      } else {
+        this.logger.log(`${req.method} ${req.originalUrl} ${res.statusCode}`);
+      }
+    };
+
+    res.on('finish', logFinish);
+
+    next();
+  }
+
 }

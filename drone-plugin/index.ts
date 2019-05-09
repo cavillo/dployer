@@ -7,7 +7,7 @@ configureEnvironmentVariables();
 
 const PLUGIN_API_HOST       = _.get(process.env, 'PLUGIN_API_HOST'    , 'localhost');
 const PLUGIN_API_PORT       = _.get(process.env, 'PLUGIN_API_PORT'    , '8002');
-const PLUGIN_API_TOKEN      = _.get(process.env, 'PLUGIN_API_TOKEN'   , '');
+const PLUGIN_API_TOKEN      = _.get(process.env, 'PLUGIN_API_TOKEN'   , '3');
 const PLUGIN_APPLICATION    = _.get(process.env, 'PLUGIN_APPLICATION' , 'my-cool-app');
 const PLUGIN_NAMESPACE      = _.get(process.env, 'PLUGIN_NAMESPACE'   , 'production');
 const PLUGIN_DEPLOYMENT     = _.get(process.env, 'PLUGIN_DEPLOYMENT'  , 'greetings');

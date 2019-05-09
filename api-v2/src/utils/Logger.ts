@@ -38,6 +38,6 @@ export default class Logger {
   }
 
   private getLoggDate(): string {
-    return `[${moment().format('MMMM Do YYYY, HH:mm:ss:SSS')}]`;
+    return `[${moment().format('MMMM Do YYYY, HH:mm:ss.SSS')}]`;
   }
 }
