@@ -66,7 +66,6 @@ export default class KnownErrors {
     }
 
     if (_.startsWith(error.message, 'Conflict')) {
-      console.log('yeahhhh', error.message.toString());
       return { code: HTTP.CONFLICT, message: error.message };
     }
 

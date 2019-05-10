@@ -81,11 +81,7 @@ export default class ContainerService {
   }
 
   async logs(id: string, tail: number = 100): Promise<string[]> {
-    try {
-      return await this.docker.getContainerLogs(id, tail);
-    } catch (error) {
-      return [];
-    }
+    return await this.docker.getContainerLogs(id, tail);
   }
 
   async stats(id: string): Promise<IContainerStats> {
@@ -93,12 +89,8 @@ export default class ContainerService {
   }
 
   async getById(id: string): Promise<IContainer | null> {
-    try {
-      const dockerContainer: ContainerInfo = await this.docker.getContainerById(id);
-      return this.castFromDockerContainer(dockerContainer);
-    } catch (error) {
-      return null;
-    }
+    const dockerContainer: ContainerInfo = await this.docker.getContainerById(id);
+    return this.castFromDockerContainer(dockerContainer);
   }
 
   async getAll(): Promise<IContainer[]> {

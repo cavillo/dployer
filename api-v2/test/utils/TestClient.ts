@@ -29,10 +29,7 @@ export default class TestClient {
       const response = await instance(config);
       return response;
     } catch (err) {
-      return {
-        status: '500',
-        error: 'Server error',
-      }
+      return err.response;
     }
   }
 
@@ -48,10 +45,7 @@ export default class TestClient {
       const response = await instance(config);
       return response;
     } catch (err) {
-      return {
-        status: '500',
-        error: 'Server error',
-      }
+      return err.response;
     }
   }
 
@@ -66,10 +60,7 @@ export default class TestClient {
       const response = await instance(config);
       return response;
     } catch (err) {
-      return {
-        status: '500',
-        error: 'Server error',
-      }
+      return err.response;
     }
   }
 
@@ -84,10 +75,7 @@ export default class TestClient {
       const response = await instance(config);
       return response;
     } catch (err) {
-      return {
-        status: '500',
-        error: 'Server error',
-      }
+      return err.response;
     }
   }
 

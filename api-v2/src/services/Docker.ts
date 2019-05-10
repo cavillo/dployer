@@ -53,7 +53,7 @@ export default class Docker {
   async getContainerById(id: string): Promise<ContainerInfo> {
     const containers: ContainerInfo[] = await this.getContainers({ id });
     if (_.isEmpty(containers)) {
-      throw new Error('No container found by id');
+      throw new Error('container does not exist');
     }
     return containers[0];
   }
@@ -61,7 +61,7 @@ export default class Docker {
   async getImageById(id: string): Promise<ImageInfo> {
     const images: ImageInfo[] = await this.getImages({ id });
     if (_.isEmpty(images)) {
-      throw new Error('No image found by id');
+      throw new Error('image does not exist');
     }
     console.log(images);
     return images[0];
@@ -357,10 +357,10 @@ export default class Docker {
   async runContainer(image: string, cmd: string[], args: IFilters = {}): Promise<ContainerInfo> {
     // validating image
     if (!image) {
-      throw new Error('No image provided...');
+      throw new Error('Missing image');
     }
     if (!_.isString(image)) {
-      throw new Error('Invalid image...');
+      throw new Error('Invalid image');
     }
     // Pulling the immage
     try {
@@ -491,7 +491,7 @@ export default class Docker {
       const containersInfo: ContainerInfo[] = await this.getContainers(filters) || [];
 
       if (_.isEmpty(containersInfo)) {
-        throw Error('No container found');
+        throw Error('container does not exist');
       }
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
       await container.stop();
@@ -517,7 +517,7 @@ export default class Docker {
       const containersInfo: ContainerInfo[] = await this.getContainers(filters) || [];
 
       if (_.isEmpty(containersInfo)) {
-        throw Error('No container found');
+        throw Error('container does not exist');
       }
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
       try {
@@ -544,7 +544,7 @@ export default class Docker {
       const containersInfo: ContainerInfo[] = await this.getContainers(filters) || [];
 
       if (_.isEmpty(containersInfo)) {
-        throw Error('No container found');
+        throw Error('container does not exist');
       }
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
       try {
@@ -571,7 +571,7 @@ export default class Docker {
       const containersInfo: ContainerInfo[] = await this.getContainers(filters) || [];
 
       if (_.isEmpty(containersInfo)) {
-        throw Error('No container found');
+        throw Error('container does not exist');
       }
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
       try {
@@ -597,7 +597,7 @@ export default class Docker {
       const containersInfo: ContainerInfo[] = await this.getContainers(filters) || [];
 
       if (_.isEmpty(containersInfo)) {
-        throw Error('No container found');
+        throw Error('container does not exist');
       }
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));
       try {
@@ -624,7 +624,7 @@ export default class Docker {
       const containersInfo: ContainerInfo[] = await this.getContainers(filters) || [];
 
       if (_.isEmpty(containersInfo)) {
-        throw Error('No container found');
+        throw Error('container does not exist');
       }
 
       const container = await this.docker.getContainer(_.get(containersInfo, '[0].Id'));

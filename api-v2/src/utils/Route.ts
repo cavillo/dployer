@@ -69,7 +69,7 @@ export default abstract class Route {
     return;
   }
 
-  protected async detectKnownErrors(thrownError: Error, httpResponse: any) {
+  protected async detectKnownErrors(thrownError: Error, httpResponse: Response) {
     let message = _.get(thrownError, 'message', 'Unknown error');
     let statusCode = _.get(thrownError, 'statusCode', 500);
 
@@ -79,8 +79,7 @@ export default abstract class Route {
       statusCode = error.code;
     }
 
-    this.resources.logger.error(statusCode, message, JSON.stringify(thrownError));
-    httpResponse.status(statusCode).send(message);
-    return;
+    this.resources.logger.error('errorcito =>', statusCode, message, JSON.stringify(thrownError));
+    return httpResponse.status(statusCode).send(message);
   }
 }

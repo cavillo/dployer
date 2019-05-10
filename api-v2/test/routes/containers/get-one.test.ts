@@ -18,9 +18,9 @@ beforeEach(async () => {
   client.setToken(token);
 });
 
-describe('Containers...', () => {
-  it('Ping GET /containers...', async () => {
-    const response = await client.get('/containers');
+describe('GET /containers/:id', () => {
+  it('Ping...', async () => {
+    const response = await client.get('/containers/1');
 
     // ping to the service
     // the service is online
@@ -28,7 +28,7 @@ describe('Containers...', () => {
       .to.have.property('status');
     expect(response)
       .to.not.be.equal(500);
-    expect(_.isArray(_.get(response, 'data.containers', null)))
-      .to.be.equal(true);
+    // expect(_.has(response, 'data.container'))
+    //   .to.be.equal(true);
   });
 });
