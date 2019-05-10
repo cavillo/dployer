@@ -6,30 +6,18 @@ services:
     ports:
       - '27017:27017'
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_USERNAME: mongo_admin_usr
       MONGO_INITDB_ROOT_PASSWORD: example
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
+  api:
+    image: 'cavillo/dployer-api:latest'
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-    # redis:
-  #   image: 'redis:latest'
-  #   ports:
-  #     - '6379:6379'
-  # api:
-  #   image: 'cavillo/dployer-api:latest'
-  #   environment:
-  #     - REDIS_HOST=redis
-  #     - REDIS_PORT=6379
-  #   ports:
-  #     - '8002:8002'
-  # client:
-  #   image: 'cavillo/dployer-client:latest'
-  #   environment:
-  #     - DPLOYER_API_URL=http://localhost:8002
-  #   ports:
-  #     - '3000:3000'
+      - MONGO_AUTH_USER=mongo_admin_usr
+      - MONGO_AUTH_PASSWORD=example
+    ports:
+      - '8002:8002'
+  client:
+    image: 'cavillo/dployer-client:latest'
+    environment:
+      - DPLOYER_API_URL=http://localhost:8002
+    ports:
+      - '3000:3000'

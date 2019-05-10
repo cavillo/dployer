@@ -1,5 +1,0 @@
---colors
---require ts-node/register
---require chai/register-expect
---recursive
---timeout 20000
