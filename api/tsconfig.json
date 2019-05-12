@@ -2,10 +2,9 @@
   "compilerOptions": {
     "paths": { 
       "*": ["types/*"],
-      "@lib*": [
-        "src/lib/*"
+      "@services*": [
+        "src/services/*"
       ]
-      
     },
     "target": "es5",
     "module": "commonjs",

@@ -1,14 +1,19 @@
 version: '2'
 services:
-  redis:
-    image: 'redis:latest'
+  mongo:
+    image: 'bitnami/mongodb:latest'
+    restart: always
     ports:
-      - '6379:6379'
+      - '27017:27017'
+    environment:
+      - MONGODB_USERNAME=usr_mongo_db
+      - MONGODB_PASSWORD=pwd_mongo_db
+      - MONGODB_DATABASE=dployer
   api:
     image: 'cavillo/dployer-api:latest'
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - MONGO_AUTH_USER=usr_mongo_db
+      - MONGO_AUTH_PASSWORD=pwd_mongo_db
     ports:
       - '8002:8002'
   client:

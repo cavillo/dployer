@@ -1,18 +1,15 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import moment from 'moment';
 import Layout from '../../components/Layout';
 import ClientComponentBase from '../../components/ClientComponentBase';
 import ContainerComponent from '../../components/Container';
-import conf from '../../conf';
-import { Container } from '../../model/Container';
-import { Containers } from '..';
+import { IContainer } from '../../model/Container';
 
 type ApplicationTree = {
   [application: string]: {
     [namespace: string] : {
       [deployments: string] : {
-        containers: Container[];
+        containers: IContainer[];
       },
     },
   },
@@ -78,10 +75,10 @@ class Index extends ClientComponentBase<Props, State> {
 
     let selectedAppName: string = _.get(this.state, 'selectedAppName', '');
     let selectedNamespaceName: string = _.get(this.state, 'selectedNamespaceName', '');
-    if (selectedAppName === '') {
+    if (selectedAppName === '' || !_.has(tree, selectedAppName)) {
       selectedAppName = _.keys(tree)[0];
     }
-    if (selectedNamespaceName === '') {
+    if (selectedNamespaceName === '' || !_.has(tree[selectedAppName], selectedNamespaceName)) {
       selectedNamespaceName = _.keys(tree[selectedAppName])[0];
     }
 
@@ -89,7 +86,7 @@ class Index extends ClientComponentBase<Props, State> {
   }
 
   renderTree = () => {
-    const { selectedAppName, tree } = this.state;
+    const { tree } = this.state;
 
     if (!tree) return null;
     return (
@@ -175,7 +172,7 @@ class Index extends ClientComponentBase<Props, State> {
             {
               _.map(
                 _.get(tree, `['${selectedAppName}']['${selectedNamespaceName}']['${deploymentName}'].containers`, []),
-                (item: Container) => this.renderContainer(item),
+                (item: IContainer) => this.renderContainer(item),
               )
             }
           </div>
@@ -184,7 +181,14 @@ class Index extends ClientComponentBase<Props, State> {
     );
   }
 
-  renderContainer = (container: Container) => (<ContainerComponent options={{ details: true, logs: true, status: true }} key={container.id} container={container}/>);
+  renderContainer = (container: IContainer) => (
+    <ContainerComponent
+      key={container.id}
+      options={{ details: true, logs: true, status: true }}
+      container={container}
+      onChange={this.getList}
+    />
+  )
 
   getStatusColorLabel = (status: string) => {
     switch (_.toLower(status)) {
@@ -252,8 +256,6 @@ class Index extends ClientComponentBase<Props, State> {
 
   render() {
     if (this.state.loading) return <div>Loading...</div>;
-
-    const { list } = this.state;
 
     return (
       <Layout pageName="Home">

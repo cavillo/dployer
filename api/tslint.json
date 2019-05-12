@@ -5,7 +5,8 @@
     "rules": {
         "eofline": false,
         "max-line-length": false,
-        "no-increment-decrement": false
+        "no-increment-decrement": false,
+        "import-name": false
     },
     "rulesDirectory": []
 }

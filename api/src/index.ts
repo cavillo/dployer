@@ -1,24 +1,27 @@
-import Api from './Api';
 import Logger from './utils/Logger';
+import conf from './conf';
+import API from './API';
+
+const logger = new Logger(conf.service);
 
 const init = async () => {
-  Logger.log('Initializing D-ployer...');
-  const api = new Api();
+  logger.log('Initializing...');
 
-  await api.init();
-
-  return true;
+  // Initialize API
+  const api = new API(conf, logger);
+  return await api.init();
 };
 
 init()
-  .then(() => {
-    // heartbeath
-    setInterval(
-      () => {
-        Logger.log('.');
-      },
-      30000,
-    );
-  }).catch((ex) => {
-    Logger.error(`ERROR: ${JSON.stringify(ex)}`);
+  .then(
+    () => {
+      // heartbeath
+      setInterval(
+        () => logger.log('.'),
+        (30 * 1000), // print heartbeath each 30 seconds
+      );
+    })
+  .catch((error) => {
+    logger.error('Error', JSON.stringify(error));
+    process.kill(1);
   });
