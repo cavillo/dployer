@@ -112,9 +112,11 @@ export default class API {
     const token: string = await this.services.auth.getToken();
     this.logger.warn('');
     this.logger.warn('==============');
-    this.logger.warn('==> AUTH TOKEN');
-    this.logger.warn(token);
-    this.logger.warn('');
+    this.logger.warn('Authentication token');
+    this.logger.warn('For api calls, set header Authorization: Bearer #AUTH_TOKEN#');
+    this.logger.newLine();
+    this.logger.clean(token);
+    this.logger.newLine();
   }
 
   private async listen() {

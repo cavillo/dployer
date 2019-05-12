@@ -10,15 +10,20 @@ services:
       - MONGODB_PASSWORD=pwd_mongo_db
       - MONGODB_DATABASE=dployer
   api:
+    depends_on:
+      - mongo
     image: 'cavillo/dployer-api:latest'
     environment:
       - MONGO_AUTH_USER=usr_mongo_db
       - MONGO_AUTH_PASSWORD=pwd_mongo_db
+      - MONGO_URL='mongodb://mongo'
     ports:
       - '8002:8002'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   client:
     image: 'cavillo/dployer-client:latest'
     environment:
-      - DPLOYER_API_URL=http://localhost:8002
+      - DPLOYER_API_URL=http://localhost:8002/api
     ports:
       - '3000:3000'

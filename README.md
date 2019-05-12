@@ -23,25 +23,33 @@ In your server create a `docker-compose.yml` file and copy the following:
 > Set **DPLOYER_API_URL** as the external DNS or ip address (including port) for your server.
 
 ```yml
-version: '3'
+version: '2'
 services:
-  redis:
-    image: 'redis:latest'
+  mongo:
+    image: 'bitnami/mongodb:latest'
+    restart: always
     ports:
-      - '6379:6379'
+      - '27017:27017'
+    environment:
+      - MONGODB_USERNAME=usr_mongo_db
+      - MONGODB_PASSWORD=pwd_mongo_db
+      - MONGODB_DATABASE=dployer
   api:
+    depends_on:
+      - mongo
     image: 'cavillo/dployer-api:latest'
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - MONGO_AUTH_USER=usr_mongo_db
+      - MONGO_AUTH_PASSWORD=pwd_mongo_db
+      - MONGO_URL='mongodb://mongo'
     ports:
       - '8002:8002'
-    depends_on:
-      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   client:
     image: 'cavillo/dployer-client:latest'
     environment:
-      - DPLOYER_API_URL=http://YOUR_SERVER_URL:8002
+      - DPLOYER_API_URL=http://localhost:8002/api
     ports:
       - '3000:3000'
 ```
@@ -55,10 +63,12 @@ $ docker-compose up --build --detach
 To access the Dashboard open your browser and go to `http://YOUR_SERVER_URL:3000`
 You will be ask for a access token that you will find in the logs of the **api service**.
 
-```bash
-[d-ployer]:  Authentication token
-[d-ployer]:  For api calls, set header Authorization: Bearer #AUTH_TOKEN#
-[d-ployer]:  AUTH_TOKEN=[ ********************************************* ]
+```t
+[May 12th 2019, 14:18:02.251] [dployer-api]: ==============
+[May 12th 2019, 14:18:02.252] [dployer-api]: Authentication token
+[May 12th 2019, 14:18:02.252] [dployer-api]: For api calls, set header Authorization: Bearer #AUTH_TOKEN#
+
+*****************************************
 ```
 > If you installed with docker compose, use `docker-compose logs api` to get the logs of the service.
 
