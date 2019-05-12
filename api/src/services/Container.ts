@@ -132,9 +132,9 @@ export default class ContainerService {
     return this.castFromDockerContainer(dockerContainer);
   }
 
-  async remove(id: string): Promise<IContainer> {
-    const dockerContainer = await this.docker.removeContainer(id);
-    return this.castFromDockerContainer(dockerContainer);
+  async remove(id: string): Promise<void> {
+    await this.docker.removeContainer(id);
+    return;
   }
 
   async restart(id: string): Promise<IContainer> {

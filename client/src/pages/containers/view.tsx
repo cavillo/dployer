@@ -4,14 +4,14 @@ import moment from 'moment';
 import Layout from '../../components/Layout';
 import ClientComponentBase from '../../components/ClientComponentBase';
 import ContainerComponent from '../../components/Container';
-import conf from '../../conf';
-import { Container, ContainerStats } from '../../model/Container';
+import { IContainer, IContainerStats } from '../../model/Container';
 
 type State = {
   loading: boolean,
-  container?: Container,
+  loadingLogs: boolean,
+  container?: IContainer,
   logs: string[],
-  stats?: ContainerStats,
+  stats?: IContainerStats,
 };
 
 type Props = {
@@ -23,6 +23,7 @@ class View extends ClientComponentBase<Props, State> {
     super(props);
     this.state = {
       loading: true,
+      loadingLogs: false,
       logs: [],
     };
 
@@ -31,31 +32,27 @@ class View extends ClientComponentBase<Props, State> {
     await this.setState({ loading: true });
 
     const container = await this.getContainer(this.props.containerId);
-    const logs = await this.getLogs(this.props.containerId);
-    const stats: ContainerStats = await this.getStats(this.props.containerId);
+    const stats: IContainerStats = await this.getStats(this.props.containerId);
 
-    this.setState({ container, logs, stats, loading: false });
+    this.setState({ container, stats, loading: false }, () => this.getLogs());
   }
 
   refreshLogs = async (): Promise<void> => {
-    // await this.setState({ loading: true });
-
-    const logs = await this.getLogs(this.props.containerId);
-
-    this.setState({ logs });
+    await this.getLogs();
   }
 
-  getContainer = async (id: string): Promise<Container> => {
+  getContainer = async (id: string): Promise<IContainer> => {
     const container = await this.client.services.containers.getOne(id);
     return container;
   }
 
-  getLogs = async (id: string): Promise<string[]> => {
-    const logs = await this.client.services.containers.logs(id);
-    return logs;
+  getLogs = async (): Promise<void> => {
+    await this.setState({ loadingLogs: true });
+    const logs = await this.client.services.containers.logs(this.props.containerId);
+    this.setState({ logs, loadingLogs: false });
   }
 
-  getStats = async (id: string): Promise<ContainerStats> => {
+  getStats = async (id: string): Promise<IContainerStats> => {
     const stats = await this.client.services.containers.stats(id);
     return stats;
   }
@@ -90,7 +87,7 @@ class View extends ClientComponentBase<Props, State> {
     this.state.logs.map(
       (line: string, index: number) => (
         <div key={index} className="text-monospace mb-1 d-flex flex-row">
-          <div className="text-muted mr-2 flex-shrink-1" style={{ width: 20 }}>{index + 1}</div>
+          <div className="text-muted mr-2 flex-shrink-1" style={{ width: 25 }}>{index + 1}</div>
           <div className="w-100">{line}</div>
         </div>
       ),
@@ -98,7 +95,7 @@ class View extends ClientComponentBase<Props, State> {
   )
 
   renderStats = () => {
-    const stats: ContainerStats | undefined = this.state.stats;
+    const stats: IContainerStats | undefined = this.state.stats;
     if (!stats) { return null; }
 
     return (

@@ -50,7 +50,7 @@ class Layout extends React.Component<Props, State> {
             </ul>
             <ul className="nav navbar-nav ml-auto">
               <li className="nav-item">
-                <a className="nav-link" href="#" onClick={this.logout}>Logout</a>
+                <button className="nav-link btn btn-link" onClick={this.logout}>Logout</button>
               </li>
             </ul>
           </div>

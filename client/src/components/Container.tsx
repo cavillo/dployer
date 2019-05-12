@@ -2,20 +2,21 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import moment from 'moment';
 import ClientComponentBase from './ClientComponentBase';
-import { Container } from '../model/Container';
+import { IContainer } from '../model/Container';
 
 type State = {
   loading: boolean,
-  container?: Container,
+  container?: IContainer,
 };
 
 type Props = {
-  container: Container,
+  container: IContainer,
   options?: {
     logs?: boolean;
     details?: boolean;
     status?: boolean;
   },
+  onChange?: Function,
 };
 
 class ContainerComponent extends ClientComponentBase<Props, State> {
@@ -32,46 +33,42 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
     });
   }
 
-  getContainerLogs = async (id: string) => {
-    await this.setState({ loading: true });
-    const logs: string[] = await this.client.services.containers.logs(id);
-    console.log(logs);
-    this.setState({ loading: false });
+  onChange = async () => {
+    if (this.props.onChange) await this.props.onChange();
   }
 
   stopContainer = async (id: string) => {
     await this.setState({ loading: true });
     const container = await this.client.services.containers.stop(id);
 
-    this.setState({ container, loading: false });
+    this.setState({ container, loading: false }, this.onChange);
   }
 
   restartContainer = async (id: string) => {
     await this.setState({ loading: true });
     const container = await this.client.services.containers.restart(id);
 
-    this.setState({ container, loading: false });
+    this.setState({ container, loading: false }, this.onChange);
   }
 
   startContainer = async (id: string) => {
     await this.setState({ loading: true });
     const container = await this.client.services.containers.start(id);
 
-    this.setState({ container, loading: false });
+    this.setState({ container, loading: false }, this.onChange);
   }
 
   killContainer = async (id: string) => {
     await this.setState({ loading: true });
     const container = await this.client.services.containers.kill(id);
 
-    this.setState({ container, loading: false });
+    this.setState({ container, loading: false }, this.onChange);
   }
 
   removeContainer = async (id: string) => {
     await this.setState({ loading: true });
-    const container = await this.client.services.containers.remove(id);
-
-    this.setState({ container, loading: false });
+    await this.client.services.containers.remove(id);
+    this.setState({ loading: false }, this.onChange);
   }
 
   getStatusIcon = (status: string) => {
@@ -122,10 +119,8 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
     `${_.get(container, 'application')}.${_.get(container, 'deployment')}.${_.get(container, 'namespace')}`
   )
 
-  renderOptions = (container: Container) => (
+  renderOptions = (container: IContainer) => (
     <div className="btn-group float-right" role="group" aria-label="Container options">
-      {_.get(this.props.options, 'logs', false) ? <a href={`/containers/${container.id}`} className="btn btn-sm btn-secondary" onClick={this.getContainerLogs.bind(this, _.get(container, 'id'))}>Logs</a> : null}
-      {_.get(this.props.options, 'details', false) ? <a href={`/containers/${container.id}`} className="btn btn-sm btn-secondary">Details</a> : null}
       {_.get(this.props.options, 'status', false) ?
         (
           <div className="btn-group dropup">
@@ -149,26 +144,25 @@ class ContainerComponent extends ClientComponentBase<Props, State> {
     <div className="w-100 hvr-ripple-out" key={_.get(container, 'id')}>
       <div className="card shadow p-2 rounded-lg">
         <div className="card-body mb-1 p-0">
-          <p className="mb-0">
+          <div className="mb-0">
             <span className={`text-${this.getStatusColorLabel(_.get(container, 'state', ''))} mr-2`}>{this.getStatusIcon(_.get(container, 'state', ''))}</span>
-            <span className="small float-right text-muted">{_.get(container, 'status', '')}</span>
             <span className="font-weight-bold">{_.trim(_.get(container, 'deployment'), '/')}</span>
+            <span className="float-right">
+              {this.renderOptions(container)}
+            </span>
+          </div>
+        </div>
+        <a href={`/containers/${container.id}`} className="card-body p-0 text-reset text-decoration-none">
+          <p className="small mb-0 text-truncate">
+            {_.get(container, 'id')}
           </p>
-        </div>
-        <div className="card-body p-0 d-flex flex-row">
-          <div className="d-flex flex-grow-1 align-items-end">
-            <p className="small mb-0">
-              <span className="text-monospace bg-light">{_.get(container, 'id')}</span>
-              <br/>
-              <span className="text-monospace bg-light">{this.getContainerCodeName(container)}</span>
-              <br/>
-              <span className="text-monospace bg-light mr-2">{_.get(container, 'image')}</span>created<span className="font-italic text-monospace bg-light ml-2">{moment(_.get(container, 'createdAt') * 1000).fromNow()}</span>
-            </p>
-          </div>
-          <div className="d-flex align-items-end">
-            {this.renderOptions(container)}
-          </div>
-        </div>
+          <p className="small mb-0">
+            <span className="mr-2">{_.get(container, 'image')}</span>created<span className="font-italic ml-2">{moment(_.get(container, 'createdAt') * 1000).fromNow()}</span>
+          </p>
+          <p className="small mb-0">
+            {_.get(container, 'status', '')}
+          </p>
+        </a>
       </div>
     </div>
   )

@@ -21,8 +21,8 @@ export default class RouteImpl extends Route {
 
     const { id } = req.params;
 
-    const container: IContainer = await this.resources.services.container.remove(id);
+    await this.resources.services.container.remove(id);
 
-    res.json({ container });
+    res.status(200).send();
   }
 }

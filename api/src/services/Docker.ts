@@ -547,7 +547,7 @@ export default class Docker {
     }
   }
 
-  async removeContainer(id: string): Promise<ContainerInfo> {
+  async removeContainer(id: string): Promise<void> {
     try {
 
       // Getting conflicting containers
@@ -567,7 +567,7 @@ export default class Docker {
         this.logger.error(error.message);
       }
 
-      return await this.getContainerInfoById(container.id);
+      return;
     } catch (error) {
       this.logger.error(error);
       throw error;

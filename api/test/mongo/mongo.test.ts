@@ -11,11 +11,7 @@ const collectionName: string = 'tests';
 
 before(async () => {
   logger = new Logger('Connectiong to MongoDB...');
-  const testConf = {
-    ...conf.mongo,
-    dbName: 'test',
-  };
-  mongo = new MongoDB(testConf, logger);
+  mongo = new MongoDB(conf.mongo, logger);
   await mongo.init();
   await mongo.deleteDocuments('tests', {});
   return;

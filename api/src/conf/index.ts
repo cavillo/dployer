@@ -25,8 +25,8 @@ const conf: Configuration = {
   port: _.toNumber(_.get(process.env, 'PORT', 8002)),
   mongo: {
     auth: {
-      user: _.get(process.env, 'MONGO_AUTH_USER', 'root'),
-      password: _.get(process.env, 'MONGO_AUTH_PASSWORD', 'example'),
+      user: _.get(process.env, 'MONGO_AUTH_USER', 'user'),
+      password: _.get(process.env, 'MONGO_AUTH_PASSWORD', 'pass'),
     },
     url: _.get(process.env, 'MONGO_URL', 'mongodb://localhost'),
     port: _.toNumber(_.get(process.env, 'MONGO_PORT', 27017)),

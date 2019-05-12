@@ -22,10 +22,9 @@ export default class MongoDB {
 
   public async init() {
     try {
-      console.log('auth', this.conf.auth);
       const mongoOpts: mongodb.MongoClientOptions = {
         auth: this.conf.auth,
-        authSource: 'admin',
+        authSource: this.conf.dbName,
         keepAlive: true,
         useNewUrlParser: true,
       };

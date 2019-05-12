@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import Docker, { ImageInfo, IFilters } from './Docker';
+import Docker, { ImageInfo } from './Docker';
 
 export interface IImage {
   id: string;
