@@ -144,7 +144,7 @@ export default class MongoDB {
     return;
   }
 
-  public async dropCollection(collection: string,) {
+  public async dropCollection(collection: string) {
     const db: mongodb.Db = await this.getDBInstance();
 
     await db.collection(collection).drop();
