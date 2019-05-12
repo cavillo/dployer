@@ -5,7 +5,7 @@ import { config as configureEnvironmentVariables } from 'dotenv';
 // require our environment variables
 configureEnvironmentVariables();
 
-const PLUGIN_API_HOST       = _.get(process.env, 'PLUGIN_API_HOST'    , 'cavillo.co');
+const PLUGIN_API_HOST       = _.get(process.env, 'PLUGIN_API_HOST'    , 'localhost');
 const PLUGIN_API_PORT       = _.get(process.env, 'PLUGIN_API_PORT'    , '8002');
 const PLUGIN_API_TOKEN      = _.get(process.env, 'PLUGIN_API_TOKEN'   , '');
 const PLUGIN_APPLICATION    = _.get(process.env, 'PLUGIN_APPLICATION' , 'my-cool-app');
