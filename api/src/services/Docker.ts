@@ -53,14 +53,12 @@ export default class Docker {
   async getContainerById(id: string): Promise<Container> {
     const containerInfo: ContainerInfo = await this.getContainerInfoById(id);
     const container: Container = await this.docker.getContainer(containerInfo.Id);
-    this.logger.warn(await container.inspect());
     return container;
   }
 
   async getImageById(id: string): Promise<Image> {
     const imageInfo: ImageInfo = await this.getImageInfoById(id);
     const image: Image = await this.docker.getImage(imageInfo.Id);
-    this.logger.warn(await image.inspect());
     return image;
   }
 
@@ -354,7 +352,7 @@ export default class Docker {
 
     // stoping conflicting containers
     for (const containerInfo of containers) {
-      this.logger.log('Stopping existing container...', containerInfo.Id, containerInfo.Names, containerInfo.Labels);
+      this.logger.log('Stopping existing container...', containerInfo.Id);
       const container = await this.docker.getContainer(containerInfo.Id);
       try {
         await container.stop();

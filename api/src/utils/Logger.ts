@@ -16,25 +16,30 @@ export default class Logger {
   public ok(...args: any) {
     // print green
     console.log(chalk.green(this.getLoggDate(), this.prefix), ...args);
-
   }
 
   public error(...args: any) {
     // print red
     console.log(chalk.red(this.getLoggDate(), this.prefix), ...args);
-
   }
 
   public warn(...args: any) {
     // print yellow
     console.log(chalk.yellow(this.getLoggDate(), this.prefix), ...args);
-
   }
 
   public muted(...args: any) {
     // print gray
     console.log(chalk.gray(this.getLoggDate(), this.prefix), ...args);
+  }
 
+  public clean(...args: any) {
+    // print gray
+    console.log(...args);
+  }
+
+  public newLine() {
+    console.log();
   }
 
   private getLoggDate(): string {
