@@ -3,8 +3,6 @@ services:
   mongo:
     image: 'bitnami/mongodb:latest'
     restart: always
-    ports:
-      - '27017:27017'
     environment:
       - MONGODB_USERNAME=usr_mongo_db
       - MONGODB_PASSWORD=pwd_mongo_db
