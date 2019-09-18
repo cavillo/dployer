@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import Docker, { ContainerInfo, IFilters } from './Docker';
+import Docker, { ContainerInfo, IFilters, AuthConfig } from './Docker';
 
 export interface IContainer {
   id: string;
@@ -112,8 +112,8 @@ export default class ContainerService {
     return this.castFromDockerContainer(response);
   }
 
-  async create(image: string, cmd: string[], filters: IFilters): Promise<IContainer> {
-    const response = await this.docker.runContainer(image, cmd, filters);
+  async create(image: string, cmd: string[], filters: IFilters, auth: AuthConfig): Promise<IContainer> {
+    const response = await this.docker.runContainer(image, cmd, filters, auth);
     return this.castFromDockerContainer(response);
   }
 

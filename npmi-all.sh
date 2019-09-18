@@ -8,10 +8,6 @@ cd api
   npm i --silent
   cd ..
 
-cd api-v2
-  npm i --silent
-  cd ..
-
 cd drone-plugin
   npm i --silent
   cd ..

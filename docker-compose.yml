@@ -3,10 +3,15 @@ services:
   mongo:
     image: 'bitnami/mongodb:latest'
     restart: always
+    ports:
+      - '27017:27017'
     environment:
       - MONGODB_USERNAME=usr_mongo_db
       - MONGODB_PASSWORD=pwd_mongo_db
       - MONGODB_DATABASE=dployer
+      - MONGODB_ROOT_PASSWORD=password123
+    volumes:
+      - 'mongodb_data:/bitnami'
   api:
     depends_on:
       - mongo
@@ -25,3 +30,6 @@ services:
       - DPLOYER_API_URL=http://localhost:8002/api
     ports:
       - '3000:3000'
+volumes:
+  mongodb_data:
+    driver: local

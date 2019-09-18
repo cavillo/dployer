@@ -1,6 +1,7 @@
 #!/usr/bin/env ts-node
 import * as _ from 'lodash';
 import axios from 'axios';
+import { DockerOptions } from 'dockerode';
 import { config as configureEnvironmentVariables } from 'dotenv';
 // require our environment variables
 configureEnvironmentVariables();
@@ -8,11 +9,17 @@ configureEnvironmentVariables();
 const PLUGIN_API_HOST       = _.get(process.env, 'PLUGIN_API_HOST'    , 'localhost');
 const PLUGIN_API_PORT       = _.get(process.env, 'PLUGIN_API_PORT'    , '8002');
 const PLUGIN_API_TOKEN      = _.get(process.env, 'PLUGIN_API_TOKEN'   , '');
-const PLUGIN_APPLICATION    = _.get(process.env, 'PLUGIN_APPLICATION' , 'my-cool-app');
-const PLUGIN_NAMESPACE      = _.get(process.env, 'PLUGIN_NAMESPACE'   , 'production');
-const PLUGIN_DEPLOYMENT     = _.get(process.env, 'PLUGIN_DEPLOYMENT'  , 'greetings');
-const PLUGIN_IMAGE          = _.get(process.env, 'PLUGIN_IMAGE'       , 'hello-world');
+const PLUGIN_APPLICATION    = _.get(process.env, 'PLUGIN_APPLICATION' , '');
+const PLUGIN_NAMESPACE      = _.get(process.env, 'PLUGIN_NAMESPACE'   , '');
+
+const PLUGIN_DEPLOYMENT     = _.get(process.env, 'PLUGIN_DEPLOYMENT'  , '');
+const PLUGIN_IMAGE          = _.get(process.env, 'PLUGIN_IMAGE'       , '');
 const PLUGIN_PORT_BINDINGS  = _.get(process.env, 'PORT_BINDINGS'      , '');
+const PLUGIN_ENVS           = _.get(process.env, 'PLUGIN_ENVS'        , '');
+
+const PLUGIN_REGISTRY_SERVER   = _.get(process.env, 'PLUGIN_REGISTRY_SERVER', '');
+const PLUGIN_REGISTRY_USERNAME = _.get(process.env, 'PLUGIN_REGISTRY_USERNAME', '');
+const PLUGIN_REGISTRY_PASSWORD = _.get(process.env, 'PLUGIN_REGISTRY_PASSWORD', '');
 
 interface PluginParameters {
   host: string;
@@ -23,6 +30,12 @@ interface PluginParameters {
   deployment: string;
   image: string;
   portBindings: string[];
+  envs: string[];
+  auth?: {
+    username: string;
+    password: string;
+    serveraddress: string;
+  };
 }
 
 class DployerDronePlugin {
@@ -44,7 +57,14 @@ class DployerDronePlugin {
       deployment: PLUGIN_DEPLOYMENT,
       image: PLUGIN_IMAGE,
       portBindings: [],
+      envs: [],
+      auth: {
+        serveraddress: PLUGIN_REGISTRY_SERVER,
+        username: PLUGIN_REGISTRY_USERNAME,
+        password: PLUGIN_REGISTRY_PASSWORD,
+      },
     };
+
     // Port Bindings:
     const portBindings = PLUGIN_PORT_BINDINGS.split(',');
     for (const pb of portBindings) {
@@ -55,8 +75,13 @@ class DployerDronePlugin {
       }
 
       const portBinding: any = {};
-      portBinding[ports[0]] = ['127.0.0.1', ports[1]];
+      portBinding[`${ports[0]}/tcp`] = ['127.0.0.1', ports[1]];
       retval.portBindings.push(portBinding);
+    }
+
+    // Envs:
+    if (PLUGIN_ENVS && _.isString(PLUGIN_ENVS)) {
+      retval.envs = PLUGIN_ENVS.split(',');
     }
 
     // Printing
@@ -68,7 +93,13 @@ class DployerDronePlugin {
 
     console.log('Parameters');
     _.keys(retval).map((key: string) => {
-      console.log(`--- PLUGIN_${_.toUpper(_.snakeCase(key))} = ${printParameter(_.get(retval, key))}`);
+      if (
+        key === 'auth'
+      ) {
+        console.log(`--- PLUGIN_${_.toUpper(_.snakeCase(key))} = *********`);
+      } else {
+        console.log(`--- PLUGIN_${_.toUpper(_.snakeCase(key))} = ${printParameter(_.get(retval, key))}`);
+      }
     });
 
     return retval;
@@ -118,6 +149,8 @@ class DployerDronePlugin {
       deployment: this.parameters.deployment,
       image: this.parameters.image,
       portBindings: this.parameters.portBindings,
+      envs: this.parameters.envs,
+      auth: this.parameters.auth,
     };
 
     const axiosInstance = axios.create({
