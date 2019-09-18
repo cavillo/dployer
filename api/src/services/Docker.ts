@@ -4,6 +4,8 @@ import dockerode, {
   DockerOptions,
   Image,
   ImageInfo,
+  ContainerCreateOptions,
+  AuthConfig,
 } from 'dockerode';
 import * as _ from 'lodash';
 import stream from 'stream';
@@ -21,6 +23,7 @@ export {
   IContainerStats,
   IContainer,
   IImage,
+  AuthConfig,
 };
 
 export interface IFilters {
@@ -30,6 +33,7 @@ export interface IFilters {
   applications?: string[];
   namespaces?: string[];
   deployments?: string[];
+  envs?: string[];
 }
 
 export default class Docker {
@@ -205,9 +209,9 @@ export default class Docker {
     });
   }
 
-  async pullImage(image: string) {
+  async pullImage(image: string, opts = {}, authconfig = {}) {
     const logStream = new stream.PassThrough();
-    const streamLogs = await this.docker.pull(image, {});
+    const streamLogs = await this.docker.pull(image, { authconfig });
 
     return new Promise((resolve, reject) => {
       try {
@@ -242,7 +246,7 @@ export default class Docker {
     });
   }
 
-  async createContainer(image: string, cmd: string[], args: IFilters = {}) {
+  async createContainer(image: string, cmd: string[], args: IFilters = {}, auth = {}) {
     // validating image
     if (!image) {
       throw new Error('No image provided...');
@@ -252,14 +256,14 @@ export default class Docker {
     }
     // Pulling the immage
     try {
-      await this.pullImage(image);
+      await this.pullImage(image, {}, auth);
     } catch (error) {
       this.logger.error(error);
       throw new Error('Error pulling image...');
     }
 
     // Docker API create container options
-    const createOptions: any = {
+    const createOptions: ContainerCreateOptions = {
       Image: image,
       Cmd: cmd ? cmd : [],
       AttachStdin: false,
@@ -268,15 +272,16 @@ export default class Docker {
       Tty: false,
       OpenStdin: false,
       StdinOnce: false,
-      Labels: {
-      },
+      Labels: {},
       HostConfig: {
         PortBindings: {},
       },
+      Env: [],
     };
     // - Adding "Made in Dployer" label ;)
     // - Here we could add another label for
     //   separating multiple instances of dployer
+    createOptions.Labels = {};
     createOptions.Labels[`${BASE_LABEL}`] = BASE_LABEL;
 
     // Building args
@@ -311,6 +316,9 @@ export default class Docker {
     // and they are converted into this.
     // [{'7002': ['127.0.0.1',7002']}]
     if (args.portBindings && _.isArray(args.portBindings)) {
+      createOptions.HostConfig = {
+        PortBindings: {},
+      };
       createOptions.HostConfig.PortBindings = args.portBindings.reduce(
         (obj: any, portBinding: any[]) => {
           const port: string = Object.keys(portBinding)[0];
@@ -325,6 +333,12 @@ export default class Docker {
         },
         {},
       );
+    }
+
+    // ENV VARIABLES
+    createOptions.Env = [];
+    if (args.envs && _.isArray(args.envs)) {
+      createOptions.Env = args.envs;
     }
 
     // creating container
@@ -365,7 +379,7 @@ export default class Docker {
     return await this.startContainer(newContainer.Id);
   }
 
-  async runContainer(image: string, cmd: string[], args: IFilters = {}): Promise<ContainerInfo> {
+  async runContainer(image: string, cmd: string[], args: IFilters = {}, auth = {}): Promise<ContainerInfo> {
     // validating image
     if (!image) {
       throw new Error('Missing image');
@@ -375,7 +389,7 @@ export default class Docker {
     }
     // Pulling the immage
     try {
-      await this.pullImage(image);
+      await this.pullImage(image, {}, auth);
     } catch (error) {
       this.logger.error(error);
       throw new Error('Error pulling image...');
@@ -450,6 +464,12 @@ export default class Docker {
       );
     }
 
+    // ENV VARIABLES
+    createOptions.Env = [];
+    if (args.envs && _.isArray(args.envs)) {
+      createOptions.Env = args.envs;
+    }
+
     // Getting conflicting containers
     const filters: any = {
       applications: args.applications,
@@ -457,6 +477,7 @@ export default class Docker {
       deployments: args.deployments,
       name: createOptions.name,
     };
+
     const containers: ContainerInfo[] = await this.getContainersInfo(filters) || [];
 
     // removing conflicting containers
@@ -481,6 +502,7 @@ export default class Docker {
 
     // creating container
     try {
+      this.logger.muted(createOptions);
       let container: Container = await this.docker.createContainer(createOptions);
 
       container = await container.start();

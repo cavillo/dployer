@@ -19,7 +19,7 @@ export default class RouteImpl extends Route {
   public async callback(req: Request, res: Response): Promise<any> {
     await this.requireAuthentication(req);
 
-    const { image, cmd, application, namespace, deployment, name, portBindings } = req.body;
+    const { image, cmd, application, namespace, deployment, name, portBindings, envs, auth } = req.body;
 
     if (_.isEmpty(image) || _.isNil(image)) {
       throw Error('Missing "image"');
@@ -40,12 +40,13 @@ export default class RouteImpl extends Route {
     const filters: any = {
       name,
       portBindings,
+      envs,
       applications: [application],
       namespaces: [namespace],
       deployments: [deployment],
     };
 
-    const container: IContainer = await this.resources.services.container.create(image, cmd, filters);
+    const container: IContainer = await this.resources.services.container.create(image, cmd, filters, auth);
 
     res.json({ container });
   }
