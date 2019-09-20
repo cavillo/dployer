@@ -4,7 +4,6 @@ import dockerode, {
   DockerOptions,
   Image,
   ImageInfo,
-  ContainerCreateOptions,
   AuthConfig,
 } from 'dockerode';
 import * as _ from 'lodash';
@@ -263,7 +262,7 @@ export default class Docker {
     }
 
     // Docker API create container options
-    const createOptions: ContainerCreateOptions = {
+    const createOptions: any = {
       Image: image,
       Cmd: cmd ? cmd : [],
       AttachStdin: false,
@@ -277,6 +276,7 @@ export default class Docker {
         PortBindings: {},
       },
       Env: [],
+      ExposedPorts: {},
     };
     // - Adding "Made in Dployer" label ;)
     // - Here we could add another label for
@@ -323,6 +323,9 @@ export default class Docker {
         (obj: any, portBinding: any[]) => {
           const port: string = Object.keys(portBinding)[0];
           const hostBinding: string[] = Object.values(portBinding)[0];
+
+          createOptions.ExposedPorts[port] = {};
+
           obj[port] = [
             {
               HostIp: hostBinding[0],
@@ -410,6 +413,8 @@ export default class Docker {
       HostConfig: {
         PortBindings: {},
       },
+      Env: [],
+      ExposedPorts: {},
     };
     // - Adding "Made in Dployer" label ;)
     // - Here we could add another label for
@@ -448,10 +453,16 @@ export default class Docker {
     // and they are converted into this.
     // [{'7002': ['127.0.0.1',7002']}]
     if (args.portBindings && _.isArray(args.portBindings)) {
+      createOptions.HostConfig = {
+        PortBindings: {},
+      };
       createOptions.HostConfig.PortBindings = args.portBindings.reduce(
         (obj: any, portBinding: any[]) => {
           const port: string = Object.keys(portBinding)[0];
           const hostBinding: string[] = Object.values(portBinding)[0];
+
+          createOptions.ExposedPorts[port] = {};
+
           obj[port] = [
             {
               HostIp: hostBinding[0],
