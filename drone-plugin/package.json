@@ -33,7 +33,7 @@
     "@types/glob": "^7.1.1",
     "@types/lodash": "^4.14.118",
     "@types/redis": "^2.8.12",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "chalk": "^2.4.1",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^6.1.0",
